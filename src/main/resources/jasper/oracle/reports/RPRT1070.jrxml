@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="RPRT1070" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isIgnorePagination="true" uuid="fe0c204f-22bb-40b4-ba35-21bf2ca836db">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MONICRM"/>
+	<template><![CDATA["jasper/styles/main.jrtx"]]></template>
+	<subDataset name="DatasetForChart1" uuid="cdc197bd-88c1-4e7b-8c16-71ced28a0f57">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MONICRM"/>
+		<parameter name="title" class="java.lang.String"/>
+		<parameter name="strDate" class="java.lang.String"/>
+		<parameter name="endDate" class="java.lang.String"/>
+		<parameter name="language_cd" class="java.lang.String"/>
+		<parameter name="country_cd" class="java.lang.String"/>
+		<queryString language="plsql">
+			<![CDATA[{call SP_RPRT1070_CHART1($P{strDate}, $P{endDate}, $P{ORACLE_REF_CURSOR})}]]>
+		</queryString>
+		<field name="DT" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="DT"/>
+		</field>
+		<field name="RT" class="java.math.BigDecimal">
+			<property name="com.jaspersoft.studio.field.label" value="RT"/>
+		</field>
+	</subDataset>
+	<subDataset name="DatasetForChart2" uuid="ab0938d0-96a2-4664-8116-cd4dcddbafff">
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MONICRM"/>
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<parameter name="title" class="java.lang.String"/>
+		<parameter name="strDate" class="java.lang.String"/>
+		<parameter name="endDate" class="java.lang.String"/>
+		<parameter name="language_cd" class="java.lang.String"/>
+		<parameter name="country_cd" class="java.lang.String"/>
+		<queryString language="plsql">
+			<![CDATA[{call SP_RPRT1070_CHART2($P{strDate}, $P{endDate}, $P{ORACLE_REF_CURSOR})}]]>
+		</queryString>
+		<field name="DT" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="DT"/>
+		</field>
+		<field name="RT" class="java.math.BigDecimal">
+			<property name="com.jaspersoft.studio.field.label" value="RT"/>
+		</field>
+	</subDataset>
+	<parameter name="title" class="java.lang.String"/>
+	<parameter name="strDate" class="java.lang.String"/>
+	<parameter name="endDate" class="java.lang.String"/>
+	<parameter name="language_cd" class="java.lang.String"/>
+	<parameter name="country_cd" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[select 1 from dual]]>
+	</queryString>
+	<field name="1" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="1"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="802" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<rectangle>
+				<reportElement mode="Opaque" x="0" y="30" width="554" height="40" forecolor="#FFFFFF" backcolor="#D9E1F2" uuid="0e588658-f053-4604-a90d-8f0229afb7bb"/>
+			</rectangle>
+			<staticText>
+				<reportElement style="TitleRight" mode="Transparent" x="0" y="30" width="100" height="20" backcolor="#FFFFFF" uuid="0820f02a-5ba6-4a47-a1b5-333ceaf20456">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left"/>
+				<text><![CDATA[Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="TitleRight" mode="Transparent" x="100" y="30" width="25" height="20" backcolor="#FFFFFF" uuid="c72deaa8-627d-49bc-8cc7-9eecbc94449f">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="TitleRight" mode="Transparent" x="100" y="50" width="25" height="20" backcolor="#FFFFFF" uuid="40a66886-0179-43fc-ac94-437f0cc9178f">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="TitleRight" mode="Transparent" x="0" y="50" width="100" height="20" backcolor="#FFFFFF" uuid="96dc4b84-7b1b-4e61-94c6-f020dc6a59bf">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left"/>
+				<text><![CDATA[Filter]]></text>
+			</staticText>
+			<lineChart>
+				<chart isShowLegend="false" evaluationTime="Report">
+					<reportElement x="0" y="90" width="554" height="346" uuid="8d42136f-b473-43eb-8867-f5f736a72880"/>
+					<chartTitle>
+						<font size="16" isBold="true"/>
+						<titleExpression><![CDATA["Transaction Rate of Favorite Registration"]]></titleExpression>
+					</chartTitle>
+					<chartSubtitle/>
+					<chartLegend/>
+				</chart>
+				<categoryDataset>
+					<dataset>
+						<datasetRun subDataset="DatasetForChart1" uuid="8626116e-e7a0-4039-ad96-6f6c2970a858">
+							<datasetParameter name="endDate">
+								<datasetParameterExpression><![CDATA[$P{endDate}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="country_cd">
+								<datasetParameterExpression><![CDATA[$P{country_cd}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="strDate">
+								<datasetParameterExpression><![CDATA[$P{strDate}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="language_cd">
+								<datasetParameterExpression><![CDATA[$P{language_cd}]]></datasetParameterExpression>
+							</datasetParameter>
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+					</dataset>
+					<categorySeries>
+						<seriesExpression><![CDATA["SERIES 1"]]></seriesExpression>
+						<categoryExpression><![CDATA[java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, new java.util.Locale($P{language_cd}, $P{country_cd})).format(new SimpleDateFormat("yyyyMMdd").parse($F{DT}))]]></categoryExpression>
+						<valueExpression><![CDATA[$F{RT}]]></valueExpression>
+					</categorySeries>
+				</categoryDataset>
+				<linePlot>
+					<plot labelRotation="55.0"/>
+					<categoryAxisFormat labelRotation="55.0">
+						<axisFormat labelColor="#000000" tickLabelColor="#000000" axisLineColor="#000000"/>
+					</categoryAxisFormat>
+					<valueAxisFormat>
+						<axisFormat labelColor="#000000" tickLabelColor="#000000" tickLabelMask="0%" axisLineColor="#000000"/>
+					</valueAxisFormat>
+					<rangeAxisMinValueExpression><![CDATA[0]]></rangeAxisMinValueExpression>
+					<rangeAxisMaxValueExpression><![CDATA[1]]></rangeAxisMaxValueExpression>
+				</linePlot>
+			</lineChart>
+			<textField>
+				<reportElement style="TitleLeft" mode="Transparent" x="125" y="30" width="429" height="20" backcolor="#FFFFFF" uuid="55389f9f-17b5-4de6-aace-7c1332caa308"/>
+				<textFieldExpression><![CDATA[java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, new java.util.Locale($P{language_cd}, $P{country_cd})).format(new Date())]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="TitleLeft" mode="Transparent" x="125" y="50" width="429" height="20" backcolor="#FFFFFF" uuid="3f542760-b6f2-490f-b2e0-bf757fe8bf05">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, new java.util.Locale($P{language_cd}, $P{country_cd})).format(new SimpleDateFormat("yyyyMMdd").parse($P{strDate}))
+ + " ~ " + java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, new java.util.Locale($P{language_cd}, $P{country_cd})).format(new SimpleDateFormat("yyyyMMdd").parse($P{endDate}))]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="TitleFont" x="0" y="0" width="554" height="30" uuid="c1eb4da1-315d-4e1b-973c-490fade436a5"/>
+				<text><![CDATA[Report]]></text>
+			</staticText>
+			<lineChart>
+				<chart isShowLegend="false" evaluationTime="Report">
+					<reportElement x="0" y="456" width="554" height="346" uuid="6e8ace60-b47c-4bbc-b7ba-7f8799c18517"/>
+					<chartTitle>
+						<font size="16" isBold="true"/>
+						<titleExpression><![CDATA["Avarage of Favorite Registration"]]></titleExpression>
+					</chartTitle>
+					<chartSubtitle/>
+					<chartLegend/>
+				</chart>
+				<categoryDataset>
+					<dataset>
+						<datasetRun subDataset="DatasetForChart2" uuid="b4a08b73-1aa7-4b2b-9815-bac55e0eb209">
+							<datasetParameter name="endDate">
+								<datasetParameterExpression><![CDATA[$P{endDate}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="country_cd">
+								<datasetParameterExpression><![CDATA[$P{country_cd}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="strDate">
+								<datasetParameterExpression><![CDATA[$P{strDate}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="language_cd">
+								<datasetParameterExpression><![CDATA[$P{language_cd}]]></datasetParameterExpression>
+							</datasetParameter>
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+					</dataset>
+					<categorySeries>
+						<seriesExpression><![CDATA["SERIES 1"]]></seriesExpression>
+						<categoryExpression><![CDATA[java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, new java.util.Locale($P{language_cd}, $P{country_cd})).format(new SimpleDateFormat("yyyyMMdd").parse($F{DT}))]]></categoryExpression>
+						<valueExpression><![CDATA[$F{RT}]]></valueExpression>
+					</categorySeries>
+				</categoryDataset>
+				<linePlot>
+					<plot labelRotation="55.0"/>
+					<categoryAxisFormat labelRotation="55.0">
+						<axisFormat labelColor="#000000" tickLabelColor="#000000" axisLineColor="#000000"/>
+					</categoryAxisFormat>
+					<valueAxisFormat>
+						<axisFormat labelColor="#000000" tickLabelColor="#000000" tickLabelMask="0.00" axisLineColor="#000000"/>
+					</valueAxisFormat>
+					<rangeAxisMinValueExpression><![CDATA[0]]></rangeAxisMinValueExpression>
+					<rangeAxisMaxValueExpression><![CDATA[10]]></rangeAxisMaxValueExpression>
+				</linePlot>
+			</lineChart>
+		</band>
+	</title>
+</jasperReport>

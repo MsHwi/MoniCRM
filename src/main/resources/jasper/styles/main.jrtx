@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio -->
+<jasperTemplate xmlns="http://jasperreports.sourceforge.net/jasperreports/template" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/template http://jasperreports.sourceforge.net/xsd/jaspertemplate.xsd">
+	<style name="TitleFont" mode="Opaque" forecolor="#FFFFFF" backcolor="#002060" hTextAlign="Center" vTextAlign="Middle" fontSize="20" isBold="true" isUnderline="false">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="TitleRight" vTextAlign="Middle" fontSize="11" isBold="true">
+		<paragraph leftIndent="5"/>
+	</style>
+	<style name="ColumnDetail" forecolor="#000000" hTextAlign="Left" vTextAlign="Middle" isBlankWhenNull="true" fontName="CB Font">
+		<pen lineWidth="1.0"/>
+		<box>
+			<pen lineWidth="0.5"/>
+		</box>
+		<paragraph leftIndent="5"/>
+	</style>
+	<style name="ColumnHeader" mode="Opaque" forecolor="#000000" backcolor="#BFBFBF" hTextAlign="Center" vTextAlign="Middle" isBlankWhenNull="true" fontName="CB Font" fontSize="10" isBold="true">
+		<pen lineWidth="0.0"/>
+		<box>
+			<pen lineWidth="0.5" lineStyle="Solid" lineColor="#1D437D"/>
+		</box>
+	</style>
+	<style name="ColumnDetailNumber" mode="Transparent" forecolor="#000000" hTextAlign="Right" vTextAlign="Middle" pattern="#,##0.###" isBlankWhenNull="true">
+		<pen lineWidth="1.0"/>
+		<box>
+			<pen lineWidth="0.5"/>
+		</box>
+		<paragraph leftIndent="0" rightIndent="5"/>
+	</style>
+	<style name="ColumnDetailNumberDecimal" mode="Transparent" forecolor="#000000" hTextAlign="Right" vTextAlign="Middle" pattern="#,##0.00#" isBlankWhenNull="true">
+		<pen lineWidth="1.0"/>
+		<box>
+			<pen lineWidth="0.5"/>
+		</box>
+		<paragraph leftIndent="0" rightIndent="5"/>
+	</style>
+	<style name="TitleLeft" hTextAlign="Left" vTextAlign="Middle" fontSize="11" isBold="false">
+		<paragraph leftIndent="5"/>
+	</style>
+	<style name="TotalDetail" mode="Opaque" forecolor="#000000" backcolor="#BFBFBF" hTextAlign="Center" vTextAlign="Middle" isBlankWhenNull="true" fontName="CB Font" isBold="false">
+		<pen lineWidth="1.0"/>
+		<box>
+			<pen lineWidth="0.5"/>
+		</box>
+		<paragraph leftIndent="5"/>
+	</style>
+	<style name="TotalDetailNumber" mode="Opaque" forecolor="#000000" backcolor="#BFBFBF" hTextAlign="Right" vTextAlign="Middle" pattern="#,##0.###" isBlankWhenNull="true">
+		<pen lineWidth="1.0"/>
+		<box>
+			<pen lineWidth="0.5"/>
+		</box>
+		<paragraph leftIndent="0" rightIndent="5"/>
+	</style>
+	<style name="SubtitleFont" mode="Opaque" forecolor="#FFFFFF" backcolor="#002060" hTextAlign="Left" vTextAlign="Middle" fontSize="14" isBold="true" isUnderline="false">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="ColumnDetailCenter" forecolor="#000000" hTextAlign="Center" vTextAlign="Middle" isBlankWhenNull="true" fontName="CB Font">
+		<pen lineWidth="1.0"/>
+		<box>
+			<pen lineWidth="0.5"/>
+		</box>
+		<paragraph leftIndent="5"/>
+	</style>
+</jasperTemplate>

@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="RPRT1040" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isSummaryWithPageHeaderAndFooter="true" uuid="fe0c204f-22bb-40b4-ba35-21bf2ca836db">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MONICRM"/>
+	<template><![CDATA["jasper/styles/main.jrtx"]]></template>
+	<subDataset name="DatasetForGrid" whenResourceMissingType="Empty" uuid="8f974683-b9aa-43d5-be48-dcd7ee38ca05">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="MONICRM"/>
+		<parameter name="strDate" class="java.lang.String"/>
+		<parameter name="endDate" class="java.lang.String"/>
+		<parameter name="state" class="java.lang.String"/>
+		<parameter name="atmAmount" class="java.math.BigDecimal">
+			<defaultValueExpression><![CDATA[BigDecimal.valueOf(0)]]></defaultValueExpression>
+		</parameter>
+		<parameter name="city" class="java.lang.String"/>
+		<queryString language="plsql">
+			<![CDATA[{call SP_RPRT1040_GRID($P{strDate}, $P{endDate}, $P{state}, $P{city}, $P{atmAmount}, $P{ORACLE_REF_CURSOR})}]]>
+		</queryString>
+		<field name="TMNL_NO" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="TMNL_NO"/>
+		</field>
+		<field name="IP_ADDR" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="IP_ADDR"/>
+		</field>
+		<field name="FAIL_CNT" class="java.math.BigDecimal">
+			<property name="com.jaspersoft.studio.field.label" value="FAIL_CNT"/>
+		</field>
+	</subDataset>
+	<parameter name="title" class="java.lang.String"/>
+	<parameter name="strDate" class="java.lang.String"/>
+	<parameter name="endDate" class="java.lang.String"/>
+	<parameter name="state" class="java.lang.String"/>
+	<parameter name="atmAmount" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="city" class="java.lang.String"/>
+	<parameter name="language_cd" class="java.lang.String"/>
+	<parameter name="country_cd" class="java.lang.String"/>
+	<parameter name="state_txt" class="java.lang.String"/>
+	<parameter name="city_txt" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[select 1 from dual]]>
+	</queryString>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="130" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<rectangle>
+				<reportElement mode="Opaque" x="0" y="30" width="554" height="80" forecolor="#FFFFFF" backcolor="#D9E1F2" uuid="6125ffd0-c30a-4625-8006-9f10fc01ccfa"/>
+			</rectangle>
+			<staticText>
+				<reportElement style="TitleRight" mode="Transparent" x="0" y="70" width="100" height="20" backcolor="#FFFFFF" uuid="f122d00a-4686-4305-92e3-9c6bbc432576">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left"/>
+				<text><![CDATA[City]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="TitleRight" mode="Transparent" x="0" y="30" width="100" height="20" backcolor="#FFFFFF" uuid="0820f02a-5ba6-4a47-a1b5-333ceaf20456">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left"/>
+				<text><![CDATA[Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="TitleRight" mode="Transparent" x="100" y="30" width="25" height="20" backcolor="#FFFFFF" uuid="c72deaa8-627d-49bc-8cc7-9eecbc94449f">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="TitleRight" mode="Transparent" x="100" y="70" width="25" height="20" backcolor="#FFFFFF" uuid="043c7ab9-912c-4aca-89b5-a6cc173a22ce">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="TitleRight" mode="Transparent" x="0" y="50" width="100" height="20" backcolor="#FFFFFF" uuid="5cd2d90e-17ab-40e9-bda8-fdb0b67a33e9">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left"/>
+				<text><![CDATA[State]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="TitleRight" mode="Transparent" x="100" y="50" width="25" height="20" backcolor="#FFFFFF" uuid="0307ebcc-8b7a-4660-a6d6-ff2894b45a6a">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="TitleRight" mode="Transparent" x="0" y="90" width="100" height="20" backcolor="#FFFFFF" uuid="7a004dd4-7f8d-4b1b-9964-c0c77d4885d9">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left"/>
+				<text><![CDATA[Filter]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="TitleRight" mode="Transparent" x="100" y="90" width="25" height="20" backcolor="#FFFFFF" uuid="e71c8a95-2dc1-450d-904e-e23324387e53">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="TitleLeft" mode="Transparent" x="125" y="70" width="429" height="20" backcolor="#FFFFFF" uuid="09c63fc2-a3c6-4418-93e2-4fa1f4937724">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[$P{city_txt}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="TitleLeft" mode="Transparent" x="125" y="50" width="429" height="20" backcolor="#FFFFFF" uuid="590baded-a7aa-47e7-9a52-1f68c8e1e5a9"/>
+				<textFieldExpression><![CDATA[$P{state_txt}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="TitleLeft" mode="Transparent" x="125" y="30" width="429" height="20" backcolor="#FFFFFF" uuid="de232738-7b51-40d9-b34c-fc220d042116"/>
+				<textFieldExpression><![CDATA[java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, new java.util.Locale($P{language_cd}, $P{country_cd})).format(new Date())]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement style="TitleLeft" mode="Transparent" x="125" y="90" width="429" height="20" backcolor="#FFFFFF" uuid="2c92bafd-61b6-4ba5-9920-d12bc0335a44">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, new java.util.Locale($P{language_cd}, $P{country_cd})).format(new SimpleDateFormat("yyyyMMdd").parse($P{strDate}))
+ + " ~ " + java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, new java.util.Locale($P{language_cd}, $P{country_cd})).format(new SimpleDateFormat("yyyyMMdd").parse($P{endDate}))]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="TitleFont" x="0" y="0" width="554" height="30" uuid="afaf3dab-7448-4ed1-8238-3727e2c00029"/>
+				<text><![CDATA[Report]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageFooter>
+		<band height="15">
+			<textField evaluationTime="Report">
+				<reportElement x="280" y="0" width="276" height="15" uuid="36f2d425-bc8f-4589-b589-d3621a50f059">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Bottom"/>
+				<textFieldExpression><![CDATA[" of " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="0" width="276" height="15" uuid="f791e9d6-ea72-4c4f-b052-6fc29b7e1f0b">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Bottom"/>
+				<textFieldExpression><![CDATA["Page " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="90">
+			<textField>
+				<reportElement style="SubtitleFont" x="0" y="0" width="554" height="30" uuid="f5cc989a-a826-4041-b6ac-57394918ef31"/>
+				<textFieldExpression><![CDATA["Deployment Failure Top " + $P{atmAmount} + " List"]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement x="0" y="30" width="554" height="60" uuid="6014280d-492d-4de1-abed-ffb4b77e82a5">
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+					<property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
+					<property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
+					<property name="com.jaspersoft.studio.table.style.detail" value="Table_TD"/>
+				</reportElement>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" whenNoDataType="AllSectionsNoDetail">
+					<datasetRun subDataset="DatasetForGrid" uuid="71d1c42f-3f62-40e3-aa85-75999093b97f">
+						<datasetParameter name="atmAmount">
+							<datasetParameterExpression><![CDATA[new BigDecimal($P{atmAmount})]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="city">
+							<datasetParameterExpression><![CDATA[$P{city}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="state">
+							<datasetParameterExpression><![CDATA[$P{state}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="endDate">
+							<datasetParameterExpression><![CDATA[$P{endDate}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="strDate">
+							<datasetParameterExpression><![CDATA[$P{strDate}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="30" uuid="bcab216c-ca1a-47fc-8c14-d7d5d9c9766e">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+						<jr:columnHeader height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="ColumnHeader" x="0" y="0" width="30" height="30" uuid="3a9a9e1c-5c37-4e8c-8d2d-23c7dc912ae9"/>
+								<text><![CDATA[No]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="30">
+							<textField isStretchWithOverflow="true">
+								<reportElement style="ColumnDetailNumber" stretchType="RelativeToBandHeight" mode="Transparent" x="0" y="0" width="30" height="30" isPrintWhenDetailOverflows="true" uuid="f389cd1e-6703-4166-9299-61efbd48f993"/>
+								<textElement textAlignment="Center"/>
+								<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="120" uuid="7ddca2c2-cfe3-4ec0-a1c8-fad70a2b5d21">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+						<jr:columnHeader height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="ColumnHeader" x="0" y="0" width="120" height="30" uuid="d44035ec-8442-45a6-b978-fbf3d29e10db"/>
+								<text><![CDATA[Terminal #]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="30">
+							<textField isStretchWithOverflow="true">
+								<reportElement style="ColumnDetail" stretchType="RelativeToBandHeight" mode="Transparent" x="0" y="0" width="120" height="30" isPrintWhenDetailOverflows="true" uuid="4e161951-f543-4359-97ee-a5b15f2d14d9"/>
+								<textFieldExpression><![CDATA[$F{TMNL_NO}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="250" uuid="482053db-d11e-419a-8c0c-86b9aab86097">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
+						<jr:columnHeader height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="ColumnHeader" x="0" y="0" width="250" height="30" uuid="e3b3b686-d5a2-4465-a562-96f8b2a385ba"/>
+								<text><![CDATA[Address]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="30">
+							<textField isStretchWithOverflow="true">
+								<reportElement style="ColumnDetail" stretchType="RelativeToBandHeight" mode="Transparent" x="0" y="0" width="250" height="30" isPrintWhenDetailOverflows="true" uuid="e4c61eb2-6eb7-4a6c-ba0c-ff940985c197"/>
+								<textFieldExpression><![CDATA[$F{IP_ADDR}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="154" uuid="59317e9a-94c0-441f-84c6-9c8d610ffea8">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
+						<jr:columnHeader height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="ColumnHeader" x="0" y="0" width="154" height="30" uuid="ed8847ca-38d0-4aca-b98a-a6b3ce0a05d0"/>
+								<text><![CDATA[Failure Count]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="30">
+							<textField isStretchWithOverflow="true">
+								<reportElement style="ColumnDetailNumber" stretchType="RelativeToBandHeight" mode="Transparent" x="0" y="0" width="154" height="30" isPrintWhenDetailOverflows="true" uuid="aaec36dc-d448-4ab6-8e13-129620a142bf"/>
+								<textFieldExpression><![CDATA[$F{FAIL_CNT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+	</summary>
+</jasperReport>

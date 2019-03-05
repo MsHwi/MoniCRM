@@ -1,0 +1,514 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="RPRT1010" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isSummaryWithPageHeaderAndFooter="true" uuid="fe0c204f-22bb-40b4-ba35-21bf2ca836db">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="mssql"/>
+	<template><![CDATA["jasper/styles/main.jrtx"]]></template>
+	<subDataset name="DatasetForChart" uuid="cdc197bd-88c1-4e7b-8c16-71ced28a0f57">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="mssql"/>
+		<parameter name="mkt_no" class="java.lang.String"/>
+		<parameter name="title" class="java.lang.String"/>
+		<queryString language="plsql">
+			<![CDATA[dbo.SP_RPRT1010_CHART $P{mkt_no}]]>
+		</queryString>
+		<field name="RATIO" class="java.lang.Integer">
+			<property name="com.jaspersoft.studio.field.label" value="RATIO"/>
+		</field>
+		<field name="PIE_NM" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="PIE_NM"/>
+		</field>
+	</subDataset>
+	<subDataset name="DatasetForGrid2" uuid="b91c62e2-1d53-49e1-9da3-8bb77de2bfd4">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="mssql"/>
+		<parameter name="mkt_no" class="java.lang.String">
+			<defaultValueExpression><![CDATA[$P{mkt_no}]]></defaultValueExpression>
+		</parameter>
+		<parameter name="language_cd" class="java.lang.String"/>
+		<parameter name="country_cd" class="java.lang.String"/>
+		<queryString language="plsql">
+			<![CDATA[dbo.SP_RPRT1010_GRID2 $P{mkt_no}]]>
+		</queryString>
+		<field name="TMNL_NO" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="TMNL_NO"/>
+		</field>
+		<field name="IP_ADDR" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="IP_ADDR"/>
+		</field>
+		<field name="DT" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="DT"/>
+		</field>
+		<field name="MKT_NO" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="MKT_NO"/>
+		</field>
+		<group name="TMNL_NO">
+			<groupExpression><![CDATA[$F{TMNL_NO}]]></groupExpression>
+		</group>
+		<group name="ADDR">
+			<groupExpression><![CDATA[$F{IP_ADDR}]]></groupExpression>
+		</group>
+		<group name="DT">
+			<groupExpression><![CDATA[$F{DT}]]></groupExpression>
+		</group>
+		<group name="MKT_NO">
+			<groupExpression><![CDATA[$F{MKT_NO}]]></groupExpression>
+		</group>
+	</subDataset>
+	<subDataset name="DatasetForGrid1" uuid="8f974683-b9aa-43d5-be48-dcd7ee38ca05">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="mssql"/>
+		<parameter name="mkt_no" class="java.lang.String"/>
+		<parameter name="gbl_lang_cd" class="java.lang.String"/>
+		<queryString language="plsql">
+			<![CDATA[dbo.SP_RPRT1010_GRID1 $P{mkt_no}, $P{gbl_lang_cd}]]>
+		</queryString>
+		<field name="MKT_NO" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="MKT_NO"/>
+		</field>
+		<field name="MKT_NM" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="MKT_NM"/>
+		</field>
+		<field name="MKT_TYP" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="MKT_TYP"/>
+		</field>
+		<field name="AUTO" class="java.lang.Integer">
+			<property name="com.jaspersoft.studio.field.label" value="AUTO"/>
+		</field>
+		<field name="MANUAL" class="java.lang.Integer">
+			<property name="com.jaspersoft.studio.field.label" value="MANUAL"/>
+		</field>
+		<field name="FAIL" class="java.lang.Integer">
+			<property name="com.jaspersoft.studio.field.label" value="FAIL"/>
+		</field>
+		<field name="FILE_SZ" class="java.lang.Integer">
+			<property name="com.jaspersoft.studio.field.label" value="FILE_SZ"/>
+		</field>
+		<group name="MKT_NO">
+			<groupExpression><![CDATA[$F{MKT_NO}]]></groupExpression>
+		</group>
+		<group name="NM">
+			<groupExpression><![CDATA[$F{MKT_NM}]]></groupExpression>
+		</group>
+		<group name="TYP">
+			<groupExpression><![CDATA[$F{MKT_TYP}]]></groupExpression>
+		</group>
+		<group name="AUTO">
+			<groupExpression><![CDATA[$F{AUTO}]]></groupExpression>
+		</group>
+		<group name="MANUAL">
+			<groupExpression><![CDATA[$F{MANUAL}]]></groupExpression>
+		</group>
+		<group name="FAIL">
+			<groupExpression><![CDATA[$F{FAIL}]]></groupExpression>
+		</group>
+	</subDataset>
+	<parameter name="title" class="java.lang.String"/>
+	<parameter name="strDate" class="java.lang.String"/>
+	<parameter name="endDate" class="java.lang.String"/>
+	<parameter name="mkt_no" class="java.lang.String"/>
+	<parameter name="mkt_nm" class="java.lang.String"/>
+	<parameter name="mkt_desc" class="java.lang.String"/>
+	<parameter name="gbl_lang_cd" class="java.lang.String"/>
+	<parameter name="language_cd" class="java.lang.String"/>
+	<parameter name="country_cd" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[select 1]]>
+	</queryString>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="787" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<rectangle>
+				<reportElement mode="Opaque" x="0" y="30" width="555" height="100" forecolor="#FFFFFF" backcolor="#D9E1F2" uuid="5b4ad639-e514-4fe2-bd22-57f5e9c317d0"/>
+			</rectangle>
+			<textField>
+				<reportElement style="TitleLeft" mode="Transparent" x="125" y="30" width="430" height="20" backcolor="#FFFFFF" uuid="9185a016-7971-4dc5-a1a6-dea5d30e4beb"/>
+				<textFieldExpression><![CDATA[java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, new java.util.Locale($P{language_cd}, $P{country_cd})).format(new Date())]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="TitleRight" mode="Transparent" x="0" y="90" width="100" height="20" backcolor="#FFFFFF" uuid="f122d00a-4686-4305-92e3-9c6bbc432576">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left"/>
+				<text><![CDATA[Desc]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="TitleRight" mode="Transparent" x="0" y="30" width="100" height="20" backcolor="#FFFFFF" uuid="0820f02a-5ba6-4a47-a1b5-333ceaf20456">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left"/>
+				<text><![CDATA[Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="TitleRight" mode="Transparent" x="100" y="30" width="25" height="20" backcolor="#FFFFFF" uuid="c72deaa8-627d-49bc-8cc7-9eecbc94449f">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="TitleRight" mode="Transparent" x="100" y="90" width="25" height="20" backcolor="#FFFFFF" uuid="043c7ab9-912c-4aca-89b5-a6cc173a22ce">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<pieChart>
+				<chart evaluationTime="Report" theme="default">
+					<reportElement x="1" y="140" width="554" height="490" uuid="567ee855-0894-4847-a081-a6ee6ccad769"/>
+					<chartTitle>
+						<font size="16" isBold="true"/>
+						<titleExpression><![CDATA[$P{title}]]></titleExpression>
+					</chartTitle>
+					<chartSubtitle/>
+					<chartLegend/>
+				</chart>
+				<pieDataset>
+					<dataset>
+						<datasetRun subDataset="DatasetForChart" uuid="3117d379-bf1b-4f0a-8231-21c4943ce469">
+							<datasetParameter name="mkt_no">
+								<datasetParameterExpression><![CDATA[$P{mkt_no}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="title">
+								<datasetParameterExpression><![CDATA[$P{title}]]></datasetParameterExpression>
+							</datasetParameter>
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+					</dataset>
+					<keyExpression><![CDATA[$F{PIE_NM}]]></keyExpression>
+					<valueExpression><![CDATA[$F{RATIO}]]></valueExpression>
+					<labelExpression><![CDATA[$F{PIE_NM}]]></labelExpression>
+				</pieDataset>
+				<piePlot isShowLabels="true" isCircular="true" labelFormat="{0} : {1} ({2})" legendLabelFormat="{0} : {1} ({2})">
+					<plot/>
+					<itemLabel/>
+				</piePlot>
+			</pieChart>
+			<staticText>
+				<reportElement style="TitleRight" mode="Transparent" x="0" y="50" width="100" height="20" backcolor="#FFFFFF" uuid="5cd2d90e-17ab-40e9-bda8-fdb0b67a33e9">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left"/>
+				<text><![CDATA[Marketing No.]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="TitleLeft" mode="Transparent" x="125" y="50" width="430" height="20" backcolor="#FFFFFF" uuid="ebcbad39-b369-4ec2-8634-fe0084fcbef0"/>
+				<textFieldExpression><![CDATA[$P{mkt_no}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="TitleRight" mode="Transparent" x="100" y="50" width="25" height="20" backcolor="#FFFFFF" uuid="0307ebcc-8b7a-4660-a6d6-ff2894b45a6a">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="TitleFont" x="0" y="0" width="555" height="30" uuid="4b1070b6-1c13-4993-8013-e0328800c5cb"/>
+				<text><![CDATA[Report]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="TitleRight" mode="Transparent" x="100" y="70" width="25" height="20" backcolor="#FFFFFF" uuid="5856007c-02d3-40e9-acbd-db544ef5c963">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="TitleRight" mode="Transparent" x="0" y="70" width="100" height="20" backcolor="#FFFFFF" uuid="c1cc05d8-59d3-4978-a7e1-1742792c78b0">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left"/>
+				<text><![CDATA[Name]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="TitleLeft" mode="Transparent" x="125" y="70" width="430" height="20" backcolor="#FFFFFF" uuid="af091dd4-de64-4621-ab99-cc0c7e088828"/>
+				<textFieldExpression><![CDATA[$P{mkt_nm}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="TitleRight" mode="Transparent" x="100" y="110" width="25" height="20" backcolor="#FFFFFF" uuid="de498418-a656-49ba-9390-dec88385a650">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center"/>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="TitleRight" mode="Transparent" x="0" y="110" width="100" height="20" backcolor="#FFFFFF" uuid="3d8750dc-85c0-4199-921d-9684a384f9dd">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left"/>
+				<text><![CDATA[Period]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="TitleLeft" mode="Transparent" x="125" y="90" width="430" height="20" backcolor="#FFFFFF" uuid="e14da24d-56a8-4b4f-8b4f-ff11b8c327c4"/>
+				<textFieldExpression><![CDATA[$P{mkt_desc}]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement x="1" y="681" width="555" height="90" uuid="f64dc219-ef6b-4316-9aec-242ac79e7c8f">
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+					<property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
+					<property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
+					<property name="com.jaspersoft.studio.table.style.detail" value="Table_TD"/>
+				</reportElement>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" whenNoDataType="AllSectionsNoDetail">
+					<datasetRun subDataset="DatasetForGrid1" uuid="5683959b-59f9-4d18-92b9-f3926573fd19">
+						<datasetParameter name="mkt_no">
+							<datasetParameterExpression><![CDATA[$P{mkt_no}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="gbl_lang_cd">
+							<datasetParameterExpression><![CDATA[$P{gbl_lang_cd}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:columnGroup width="270" uuid="deb7e7f0-3972-4abb-a6bf-c56976c413e4">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [3]"/>
+						<jr:column width="80" uuid="06b3841b-d8d0-43f1-9a7f-728fa019486b">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+							<jr:columnHeader height="60" rowSpan="2">
+								<staticText>
+									<reportElement style="ColumnHeader" x="0" y="0" width="80" height="60" uuid="d6f9a0c6-fe1c-42f7-93ae-02f3985a1f4d"/>
+									<text><![CDATA[Marketing No]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell height="30">
+								<textField isStretchWithOverflow="true">
+									<reportElement style="ColumnDetailCenter" stretchType="RelativeToBandHeight" x="0" y="0" width="80" height="30" isPrintWhenDetailOverflows="true" uuid="692ec181-c6c1-4669-9f28-271a307467d2"/>
+									<textFieldExpression><![CDATA[$F{MKT_NO}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="120" uuid="7b7a7e02-c870-4c48-a9a4-b4354d1e9beb">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+							<jr:columnHeader height="60" rowSpan="2">
+								<staticText>
+									<reportElement style="ColumnHeader" x="0" y="0" width="120" height="60" uuid="2cdaa658-ffc2-488a-a705-98732725d261"/>
+									<text><![CDATA[Name]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell height="30">
+								<textField isStretchWithOverflow="true">
+									<reportElement style="ColumnDetail" stretchType="RelativeToBandHeight" x="0" y="0" width="120" height="30" isPrintWhenDetailOverflows="true" uuid="586a483e-71f4-41a7-8f34-90c0b720b23d"/>
+									<textFieldExpression><![CDATA[$F{MKT_NM}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="70" uuid="8039f551-7f4e-4ed0-a6e1-b3528141e93f">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
+							<jr:columnHeader height="60" rowSpan="2">
+								<staticText>
+									<reportElement style="ColumnHeader" x="0" y="0" width="70" height="60" uuid="bf1838fb-15ce-406e-92f2-8aeaa32e80b5"/>
+									<text><![CDATA[Type]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell height="30">
+								<textField isStretchWithOverflow="true">
+									<reportElement style="ColumnDetailCenter" stretchType="RelativeToBandHeight" x="0" y="0" width="70" height="30" isPrintWhenDetailOverflows="true" uuid="c0ce43a6-b209-48ba-9925-19fb1c86dc6f"/>
+									<textFieldExpression><![CDATA[$F{MKT_TYP}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+					</jr:columnGroup>
+					<jr:columnGroup width="210" uuid="b1ebddb5-86c7-46b5-b1d4-2df8da03a6e9">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [3]"/>
+						<jr:columnHeader style="ColumnHeader" height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="ColumnHeader" x="0" y="0" width="210" height="30" uuid="efa76dfc-6fe4-4fc9-ac88-ef9bfb4f6581"/>
+								<text><![CDATA[Marketing Download Result]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:column width="70" uuid="e2021986-c660-4d06-832b-e06f9f48b760">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
+							<jr:columnHeader height="30" rowSpan="1">
+								<staticText>
+									<reportElement style="ColumnHeader" x="0" y="0" width="70" height="30" uuid="44e602dd-6a2e-464d-9713-244cfb000adf"/>
+									<text><![CDATA[Automatic]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell height="30">
+								<textField isStretchWithOverflow="true">
+									<reportElement style="ColumnDetailNumber" stretchType="RelativeToBandHeight" x="0" y="0" width="70" height="30" isPrintWhenDetailOverflows="true" uuid="850cef73-b6f4-4f6f-b781-d5c55f649afd"/>
+									<textFieldExpression><![CDATA[$F{AUTO}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="70" uuid="715f542d-e135-46dc-a362-d901e1ccbf6c">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
+							<jr:columnHeader height="30" rowSpan="1">
+								<staticText>
+									<reportElement style="ColumnHeader" x="0" y="0" width="70" height="30" uuid="e08b444e-bc70-42f0-9761-df4ee6256c75"/>
+									<text><![CDATA[Manual]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell height="30">
+								<textField isStretchWithOverflow="true">
+									<reportElement style="ColumnDetailNumber" stretchType="RelativeToBandHeight" x="0" y="0" width="70" height="30" isPrintWhenDetailOverflows="true" uuid="798a329a-8fcf-4bb3-b8d2-e4fb7a722024"/>
+									<textFieldExpression><![CDATA[$F{MANUAL}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="70" uuid="2bcc368c-1a3f-44f5-bfc7-9e9df74739d0">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column6"/>
+							<jr:columnHeader height="30" rowSpan="1">
+								<staticText>
+									<reportElement style="ColumnHeader" x="0" y="0" width="70" height="30" uuid="e9a6491b-0f07-49a5-804b-5fd36ed2bb13"/>
+									<text><![CDATA[Failure]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell height="30">
+								<textField isStretchWithOverflow="true">
+									<reportElement style="ColumnDetailNumber" stretchType="RelativeToBandHeight" x="0" y="0" width="70" height="30" isPrintWhenDetailOverflows="true" uuid="33bb872f-a86c-4a50-a5d5-655874574f87"/>
+									<textFieldExpression><![CDATA[$F{FAIL}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+					</jr:columnGroup>
+					<jr:column width="75" uuid="c5615cdd-8569-437e-a503-9d23453f1f0b">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column7"/>
+						<jr:columnHeader height="60" rowSpan="2">
+							<staticText>
+								<reportElement style="ColumnHeader" x="0" y="0" width="75" height="60" uuid="adb64138-55ef-4fbc-b050-f2ecd436bd76"/>
+								<text><![CDATA[File Size (MB)]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="30">
+							<textField isStretchWithOverflow="true">
+								<reportElement style="ColumnDetailNumber" stretchType="RelativeToBandHeight" x="0" y="0" width="75" height="30" isPrintWhenDetailOverflows="true" uuid="89db6850-d534-4879-8e2b-252c85d2157b"/>
+								<textFieldExpression><![CDATA[$F{FILE_SZ}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+			<staticText>
+				<reportElement style="SubtitleFont" x="1" y="651" width="555" height="30" uuid="ab4b2e5a-6b50-4d5d-840b-1fdb724e57d0"/>
+				<text><![CDATA[Marketing Statistics]]></text>
+			</staticText>
+			<textField>
+				<reportElement style="TitleLeft" mode="Transparent" x="125" y="110" width="430" height="20" backcolor="#FFFFFF" uuid="bc0652bb-6f72-4bdd-ab1c-f76f436c7ef4">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, new java.util.Locale($P{language_cd}, $P{country_cd})).format(new SimpleDateFormat("yyyyMMdd").parse($P{strDate}))
+ + " ~ " + java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM, new java.util.Locale($P{language_cd}, $P{country_cd})).format(new SimpleDateFormat("yyyyMMdd").parse($P{endDate}))]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageFooter>
+		<band height="15">
+			<textField>
+				<reportElement x="0" y="0" width="276" height="15" uuid="84d171b9-deb9-400e-af78-dbb2c7aef58e">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Bottom"/>
+				<textFieldExpression><![CDATA["Page " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="280" y="0" width="276" height="15" uuid="a2e56131-c311-46d7-8c42-60ea18d1c368">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Bottom"/>
+				<textFieldExpression><![CDATA[" of " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="91">
+			<componentElement>
+				<reportElement stretchType="RelativeToTallestObject" x="0" y="31" width="555" height="60" isRemoveLineWhenBlank="true" isPrintWhenDetailOverflows="true" uuid="0af1f3d5-fe9a-4afa-a326-2dd8672e57bb">
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+					<property name="com.jaspersoft.studio.table.style.table_header" value="Table 1_TH"/>
+					<property name="com.jaspersoft.studio.table.style.column_header" value="Table 1_CH"/>
+					<property name="com.jaspersoft.studio.table.style.detail" value="Table 1_TD"/>
+				</reportElement>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" whenNoDataType="AllSectionsNoDetail">
+					<datasetRun subDataset="DatasetForGrid2" uuid="d8e5de16-7e3e-404c-b7a9-9bc7326556f5">
+						<datasetParameter name="mkt_no">
+							<datasetParameterExpression><![CDATA[$P{mkt_no}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="country_cd">
+							<datasetParameterExpression><![CDATA[$P{country_cd}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="language_cd">
+							<datasetParameterExpression><![CDATA[$P{language_cd}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="100" uuid="3c0ea1f1-bdaa-4727-b4ba-dc61910050ee">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+						<jr:columnHeader height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="ColumnHeader" x="0" y="0" width="100" height="30" uuid="4e913fc8-b9d5-4f18-a490-ff2292304584"/>
+								<text><![CDATA[Terminal #]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="30">
+							<textField isStretchWithOverflow="true">
+								<reportElement style="ColumnDetail" stretchType="RelativeToBandHeight" x="0" y="0" width="100" height="30" isPrintWhenDetailOverflows="true" uuid="a52f5e55-7e5c-47f2-9782-c09bc8391476"/>
+								<textFieldExpression><![CDATA[$F{TMNL_NO}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="170" uuid="5415cc45-fe10-4200-8b84-e289199e7b9d">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+						<jr:columnHeader height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="ColumnHeader" x="0" y="0" width="170" height="30" uuid="74a8c7ad-3e3d-42b7-b562-6c92d8ffc743"/>
+								<text><![CDATA[Address]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="30">
+							<textField isStretchWithOverflow="true">
+								<reportElement style="ColumnDetail" stretchType="RelativeToBandHeight" x="0" y="0" width="170" height="30" isPrintWhenDetailOverflows="true" uuid="03a7862c-b569-486f-82ff-285ec2adb6f2"/>
+								<textFieldExpression><![CDATA[$F{IP_ADDR}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="160" uuid="036c7171-5417-4886-9edf-e2a8b66996ce">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
+						<jr:columnHeader height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="ColumnHeader" x="0" y="0" width="160" height="30" uuid="9f454d7b-0361-4289-9fcb-6aed807fc7b6"/>
+								<text><![CDATA[Date]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="30">
+							<textField isStretchWithOverflow="true">
+								<reportElement style="ColumnDetailCenter" stretchType="RelativeToBandHeight" x="0" y="0" width="160" height="30" isPrintWhenDetailOverflows="true" uuid="e42d63f8-dd74-4c19-9cd7-e39e6dd55386"/>
+								<textFieldExpression><![CDATA[java.time.format.DateTimeFormatter.ofLocalizedDateTime(java.time.format.FormatStyle.MEDIUM).withLocale(new Locale($P{language_cd}, $P{country_cd})).format(java.time.LocalDateTime.parse($F{DT}, java.time.format.DateTimeFormatter.ofPattern("yyyyMMddHHmmss")))]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="125" uuid="bf763dc0-a9b1-4e51-836f-f371c010fe56">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
+						<jr:columnHeader height="30" rowSpan="1">
+							<staticText>
+								<reportElement style="ColumnHeader" x="0" y="0" width="125" height="30" uuid="c4b79217-2dcb-4ac4-ac0d-fce6d00f24e8"/>
+								<text><![CDATA[Marketing No]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="30">
+							<textField isStretchWithOverflow="true">
+								<reportElement style="ColumnDetailCenter" stretchType="RelativeToBandHeight" x="0" y="0" width="125" height="30" isPrintWhenDetailOverflows="true" uuid="3a381de2-e67f-4ffa-8082-8891439aeebc"/>
+								<textFieldExpression><![CDATA[$F{MKT_NO}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+			<staticText>
+				<reportElement style="SubtitleFont" x="0" y="1" width="555" height="30" uuid="9a9efde5-3c4a-413e-b783-9e4f55e23ca5"/>
+				<text><![CDATA[Deployment Failure List]]></text>
+			</staticText>
+		</band>
+	</summary>
+</jasperReport>
