@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd">
+    
+     <mvc:annotation-driven>
+        <mvc:message-converters>
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                <constructor-arg>
+                    <bean class="java.nio.charset.Charset" factory-method="forName">
+                        <constructor-arg value="UTF-8" />
+                    </bean>
+                </constructor-arg>
+            </bean>
+            <bean class="org.springframework.http.converter.ByteArrayHttpMessageConverter" />
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="objectMapper">
+                    <bean class="kr.co.buttle.corebase.web.ui.json.CoreBaseObjectMapper" />
+                </property>
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>application/json;charset=UTF-8</value>
+                        <value>text/html;charset=UTF-8</value>
+                        <value>text/plain;charset=UTF-8</value>
+                    </list>
+                </property>
+            </bean>
+        </mvc:message-converters>
+        <!-- <mvc:argument-resolvers>
+            <bean class="kr.co.buttle.spring.resolver.ParameterMapMethodArgumentResolver" />
+        </mvc:argument-resolvers> -->
+    </mvc:annotation-driven>
+     
+     <!-- @Controller 컨트롤러 자동 등록 -->
+     <!-- <context:component-scan base-package="kr.co.buttle.primelight" use-default-filters="false">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+        <context:include-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice" />
+    </context:component-scan> -->
+    
+    <mvc:interceptors>
+        <!-- 세션 존재여부 검사 인터셉터 -->
+        <mvc:interceptor>
+            <mvc:mapping path="/**" />
+            <mvc:exclude-mapping path="/login.do"/>
+            <mvc:exclude-mapping path="/mobileNoTransaction.do"/>
+            <mvc:exclude-mapping path="/mobileTransaction.do"/>
+            <mvc:exclude-mapping path="/SpringSample.jstl"/>
+            <bean class="kr.co.buttle.corebase.web.session.CheckSessionInterceptor">
+                <property name="loginService" ref="loginService" />
+            </bean>
+        </mvc:interceptor>
+        <!-- 세션 타임아웃 시간 갱신 인터셉터 -->
+        <mvc:interceptor>
+            <mvc:mapping path="/**" />
+            <mvc:exclude-mapping path="/login.do"/>
+            <mvc:exclude-mapping path="/nowaitTran.do"/>
+            <mvc:exclude-mapping path="/nowaitNoTran.do"/>
+            <mvc:exclude-mapping path="/SpringSample.jstl"/>
+            <bean class="kr.co.buttle.corebase.web.session.CheckTimeoutInterceptor" />
+        </mvc:interceptor>
+        <!-- Controller 로깅 인터셉터 -->
+        <mvc:interceptor>
+            <mvc:mapping path="/**" />
+            <bean class="kr.co.buttle.corebase.web.logging.ControllerLoggingInterceptor">
+                <property name="loggingService" ref="loggingService" />
+            </bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+    
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="order" value="2" />
+        <property name="prefix" value="/WEB-INF/jsp/" />
+        <property name="suffix" value=".jsp" />
+    </bean>
+
+    <bean class="org.springframework.web.servlet.view.jasperreports.JasperReportsViewResolver">
+        <property name="order" value="1" />
+        <!-- <property name="viewClass" value="org.springframework.web.servlet.view.jasperreports.JasperReportsMultiFormatView"/> -->
+        <property name="viewClass" value="kr.co.buttle.seize.pkg.jasper.CBJasperReportsMultiFormatView" />
+        <property name="prefix" value="classpath:jasper/#{dbms[seize['dbms.common.mapper.name']].vendor}/" />
+        <property name="suffix" value=".jrxml" />
+<!--         <property name="reportDataKey" value="data" /> -->
+        <property name="viewNames" value="reports/*" />
+        <property name="jdbcDataSource" ref="commonDataSource" />
+    </bean>
+    
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- 최대 업로드 파일 크기 (bytes) - 1GB = 1073741824B -->
+        <property name="maxUploadSize" value="1073741824" />
+        <property name="defaultEncoding" value="UTF-8" />
+    </bean>
+    
+    <bean class="kr.co.buttle.seize.web.advice.GlobalExceptionHandler" />
+    <bean class="kr.co.buttle.seize.web.advice.DtoResponseBodyAdvice" />
+    
+    <bean class="kr.co.buttle.seize.web.controller.JstlController" />
+    
+    <bean class="kr.co.buttle.seize.web.controller.CommonController">
+        <property name="service" ref="commonService" />
+    </bean>
+    
+    <bean class="kr.co.buttle.seize.web.controller.LoginController">
+        <property name="loginService" ref="loginService" />
+    </bean>
+    
+    <bean class="kr.co.buttle.seize.web.controller.ExportController">
+        <property name="service" ref="commonService" />
+    </bean>
+    
+    <bean class="kr.co.buttle.seize.web.controller.BatchController">
+        <property name="batchService" ref="batchService" />
+    </bean>
+    
+    <bean class="kr.co.buttle.seize.web.controller.FileUploadController">
+        <property name="service" ref="commonService" />
+    </bean>
+
+</beans>
