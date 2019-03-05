@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Sat Apr 02 22:02:57 KST 2016-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="MRKT6010">
+        
+    <!-- Search Marketing Template Item (마케팅 템플릿 항목 조회) -->
+    <select id="SELECT_MKT_TMPL" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+        /* MRKT6010.SELECT_MKT_TMPL : Search Marketing Template Item (마케팅 템플릿 항목 조회) */
+		SELECT TMPL_ITEM                  /* Template Item(템플릿 항목) */
+		     , CTT                        /* Contents(내용) */
+		     , STR_TM                     /* Start time(시작시간) */
+		     , END_TM                     /* End time(종료시간) */
+		  FROM T_MKT_TMPL_INFO  
+		 WHERE TMPL_ITEM = #{TMPL_ITEM} 	  
+         		  
+	  ORDER BY STR_TM
+		     , END_TM
+    </select>   
+    
+    <!-- Delete Marketing Template Greeting Item (마케팅 템플릿 환영 항목 삭제) -->
+    <delete id="DELETE_MKT_TMPL" parameterType="java.util.HashMap">
+        /* MRKT6010.DELETE_MKT_TMPL : Delete Marketing Template Item (마케팅 템플릿 항목 삭제) */
+        DELETE
+          FROM T_MKT_TMPL_INFO
+    </delete>        
+    
+    <!-- Save Marketing Template Item  (마케팅 템플릿 항목 등록) -->
+    <insert id="INSERT_MKT_TMPL" parameterType="java.util.HashMap">
+        /* MRKT6010.INSERT_MKT_TMPL : Save Marketing Template Item (마케팅 템플릿 항목 등록) */
+           INSERT INTO T_MKT_TMPL_INFO           
+            (
+		        TMPL_ITEM             /* Template Item(템플릿 항목) */
+		      , CTT                   /* Contents(내용) */
+		      , STR_TM                /* Start time(시작시간) */
+		      , END_TM                /* End time(종료시간) */
+		      , REG_ID                /* Register ID(등록 ID) */
+		      , REG_DTM               /* Register date-time(등록 일시) */
+		      , LST_UPD_ID            /* Last update ID(최종 변경 ID) */
+		      , LST_UPD_DTM           /* Last update date-time(최종 변경 일시) */
+            )
+            VALUES
+            (
+                #{TMPL_ITEM}
+              , #{CTT}
+              , #{STR_TM}
+              , #{END_TM}
+              , #{GBL_USR_ID}
+              , FN_LOC_DTM(#{GBL_UTC_GAP})
+              , #{GBL_USR_ID}
+              , FN_LOC_DTM(#{GBL_UTC_GAP})
+            )
+    </insert>
+    
+    <!-- Save Marketing Template Birthday Item (마케팅 템플릿 생일 항목 등록) -->
+    <insert id="INSERT_MKT_TMPL_BD" parameterType="java.util.HashMap">
+        /* MRKT6010.INSERT_MKT_TMPL_BD : Save Marketing Template Birthday Item (마케팅 템플릿 생일 항목 등록) */
+           INSERT INTO T_MKT_TMPL_INFO           
+            (
+                TMPL_ITEM             /* Template Item(템플릿 항목) */
+              , CTT                   /* Contents(내용) */
+              , STR_TM                /* Start time(시작시간) */
+              , END_TM                /* End time(종료시간) */
+              , REG_ID                /* Register ID(등록 ID) */
+              , REG_DTM               /* Register date-time(등록 일시) */
+              , LST_UPD_ID            /* Last update ID(최종 변경 ID) */
+              , LST_UPD_DTM           /* Last update date-time(최종 변경 일시) */       
+            )
+            VALUES
+            (
+                #{TMPL_ITEM}
+              , #{CTT}
+              , ''
+              , ''
+              , #{GBL_USR_ID}
+              , FN_LOC_DTM(#{GBL_UTC_GAP})
+              , #{GBL_USR_ID}
+              , FN_LOC_DTM(#{GBL_UTC_GAP})
+            )
+    </insert>    
+</mapper>

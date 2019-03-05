@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="DBRD2010">
+
+	<resultMap type="hashmap" id="SELECT_CRM_CST_CNT_RESULTSET"></resultMap>
+    <!-- Search CRM Customer count(CRM 등록/미등록 고객 건 조회) --> 
+    <select id="SELECT_CRM_CST_CNT" statementType="CALLABLE"  parameterType="java.util.HashMap">    
+    	/* DBRD2010.SELECT_CRM_CST_CNT : Search CRM Customer count(CRM 등록/미등록 고객 건 조회) */
+        
+        DECLARE 
+        	V_TODAY VARCHAR2(8) := '';
+        	p_rc   SYS_REFCURSOR;
+        
+		BEGIN    
+		 
+		 	SELECT FN_LOC_DT(#{GBL_UTC_GAP}) INTO V_TODAY FROM DUAL;
+		 	
+		 	
+		 	IF #{SRCH_END_DT} >= V_TODAY THEN
+		 	
+		 		OPEN p_rc FOR
+                
+			    WITH DATES_WANTED AS (
+			        SELECT (TO_DATE(#{SRCH_STR_DT},'YYYYMMDD') - 1) + LEVEL AS DT 
+			          FROM DUAL 
+			       CONNECT BY LEVEL <![CDATA[ <= ]]> (SELECT TO_DATE(#{SRCH_END_DT},'YYYYMMDD') - 1 - TO_DATE(#{SRCH_STR_DT},'YYYYMMDD') 
+			          FROM DUAL) + 1
+			    )                
+                
+		 		SELECT NVL(SUM(CASE WHEN CRM_CUST_YN='Y' THEN 1 ELSE 0 END),0) AS Y                                   /* CRM customer count(CRM고객건수) of Today */
+		             , NVL(COUNT(*), 0) - NVL(SUM(CASE WHEN CRM_CUST_YN='Y' THEN 1 ELSE 0 END), 0) AS N               /* Total count(총 건수) - CRM customer count(CRM고객건수) of Today */
+		             , SUBSTR(V_TODAY, 0, 4) || '-' || SUBSTR(V_TODAY, 5, 2) || '-' || SUBSTR(V_TODAY, 7, 2) AS DT    /* Date of Today */
+		        FROM   T_MKT_IF_HIST      
+		        WHERE  REG_DT = V_TODAY
+		        AND    TRSC_DV = '01'
+            <if test="AREA_CD != null and AREA_CD != ''">         
+                AND    AREA_CD = #{AREA_CD}
+            </if>            
+            <if test="CITY_CD != null and CITY_CD != ''">
+                AND    CITY_CD = #{CITY_CD}
+            </if>  		     
+		
+		        UNION ALL
+		    
+		        SELECT NVL(SUM(SM.CRM_CUST_NCNT), 0) AS Y                                         /* CRM customer count(CRM고객건수) */
+		             , NVL(SUM(NVL(SM.CUST_TOT_NCNT, 0) - NVL(SM.CRM_CUST_NCNT, 0)), 0) AS N      /* Total count(총 건수) - CRM customer count(CRM고객건수) */
+		             , TO_CHAR(DW.DT, 'YYYY-MM-DD') AS DT                                         /* Basic Date(기준일자) */
+		          FROM DATES_WANTED DW
+		        
+			      LEFT OUTER JOIN (
+				        SELECT BASC_DT
+                             , CRM_CUST_NCNT
+                             , CUST_TOT_NCNT
+				          FROM T_STS_MKT
+				
+				         WHERE 1=1
+		             <if test="AREA_CD != null and AREA_CD != ''">         
+		                 AND   AREA_CD = #{AREA_CD}
+		             </if>            
+		             <if test="CITY_CD != null and CITY_CD != ''">
+		                 AND   CITY_CD = #{CITY_CD}
+		             </if>
+			      ) SM
+			
+			       ON SM.BASC_DT = TO_CHAR(DW.DT, 'YYYYMMDD')        
+	            
+	            GROUP BY DT 
+		        ORDER BY DT DESC
+		 		;
+		 		
+		 		<!-- #{resultList, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=SELECT_CRM_CST_CNT_RESULTSET } := p_rc; -->
+                
+		 	ELSE
+		 	
+		 		OPEN p_rc FOR
+		 		
+			    WITH DATES_WANTED AS (
+			        SELECT (TO_DATE(#{SRCH_STR_DT},'YYYYMMDD') - 1) + LEVEL AS DT 
+			          FROM DUAL 
+			       CONNECT BY LEVEL <![CDATA[ <= ]]> (SELECT TO_DATE(#{SRCH_END_DT},'YYYYMMDD') - TO_DATE(#{SRCH_STR_DT},'YYYYMMDD') 
+			          FROM DUAL) + 1
+			    )		 		
+                		 		
+                SELECT NVL(SUM(SM.CRM_CUST_NCNT), 0) AS Y                             /* CRM customer count(CRM고객건수) */
+                     , NVL(SUM(SM.CUST_TOT_NCNT - SM.CRM_CUST_NCNT), 0) AS N          /* Total count(총 건수) - CRM customer count(CRM고객건수) */
+                     , TO_CHAR(DW.DT, 'YYYY-MM-DD') AS DT                             /* Basic Date(기준일자) */
+                FROM   DATES_WANTED DW
+                           
+                  LEFT OUTER JOIN (
+                        SELECT BASC_DT
+                             , CRM_CUST_NCNT
+                             , CUST_TOT_NCNT
+                          FROM T_STS_MKT
+                
+                         WHERE 1=1
+                     <if test="AREA_CD != null and AREA_CD != ''">         
+                         AND   AREA_CD = #{AREA_CD}
+                     </if>            
+                     <if test="CITY_CD != null and CITY_CD != ''">
+                         AND   CITY_CD = #{CITY_CD}
+                     </if>
+                  ) SM
+            
+                   ON SM.BASC_DT = TO_CHAR(DW.DT, 'YYYYMMDD') 
+                               
+                GROUP BY DT 
+                ORDER BY DT DESC
+                ;
+                
+		 	
+		 	END IF
+		 	;
+		 	
+		 	#{resultList, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=SELECT_CRM_CST_CNT_RESULTSET } := p_rc;
+		 	
+		 END;
+		    
+
+    </select>
+    
+    <select id="SELECT_CRM_CST_CNT_BAK" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+
+        /* DBRD2010.SELECT_CRM_CST_CNT : Search CRM Customer count(CRM 등록/미등록 고객 건 조회) */		 
+		    SELECT NVL(SUM(CASE WHEN CRM_CUST_YN='Y' THEN 1 ELSE 0 END),0) AS Y               /* CRM customer count(CRM고객건수) of Today */
+		         , NVL(COUNT(*) - SUM(CASE WHEN CRM_CUST_YN='Y' THEN 1 ELSE 0 END), 0) AS N   /* Total count(총 건수) - CRM customer count(CRM고객건수) of Today */
+		         , #{SRCH_TODAY} AS DT                                                        /* Date of Today */
+		      FROM T_MKT_IF_HIST      
+		     WHERE REG_DT = #{SRCH_TODAY}
+		       AND TRSC_DV = '01'
+            <if test="AREA != null and AREA != ''">         
+               AND AREA_CD = #{AREA_CD}
+            </if>            
+            <if test="CITY != null and CITY != ''">
+               AND CITY_CD = #{CITY_CD}
+            </if>  		     
+		
+		     UNION ALL
+		    
+		    SELECT NVL(SUM(CRM_CUST_NCNT), 0) AS Y                       /* CRM customer count(CRM고객건수) */
+		         , NVL(SUM(CUST_TOT_NCNT - CRM_CUST_NCNT), 0) AS N       /* Total count(총 건수) - CRM customer count(CRM고객건수) */
+		         , BASC_DT AS DT                                         /* Basic Date(기준일자) */
+		      FROM T_STS_MKT
+	         WHERE BASC_DT BETWEEN #{SRCH_STR_DT} AND #{SRCH_END_DT}
+	        <if test="AREA != null and AREA != ''">         
+	           AND AREA_CD = #{AREA_CD}
+	        </if>            
+	        <if test="CITY != null and CITY != ''">
+	           AND CITY_CD = #{CITY_CD}
+	        </if>     
+	      GROUP BY BASC_DT 
+	      
+		  ORDER BY DT DESC
+    </select>
+    
+    <!-- Search Program Name(프로그램 이름 조회) -->     
+    <select id="SELECT_PGM_NM" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+        /* DBRD2010.SELECT_PGM_NM : Search Program Name(프로그램 이름 조회) */ 
+<!-- 		SELECT NVL(FN_PGM_NM(#{PGM_ID}, #{GBL_LANG_CD}, ''), '') AS PGM_NM -->
+<!-- 		  FROM DUAL -->
+            SELECT WGT_NM AS PGM_NM
+              FROM T_WGT
+             WHERE WGT_ID = #{PGM_ID}
+<!--                AND USE_YN = 'Y' -->
+    </select>
+</mapper>

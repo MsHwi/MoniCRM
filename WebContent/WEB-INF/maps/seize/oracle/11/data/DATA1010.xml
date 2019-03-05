@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Sat Apr 02 22:02:57 KST 2016-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="DATA1010">
+    
+    <!-- Search Item Code list(아이템 코드 리스트 가져오기) -->
+    <select id="SELECT_ITEM_CODE_LIST" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+        /* DATA1010.SELECT_ITEM_CODE_LIST : Search Item Code list(아이템 코드 리스트 가져오기) */
+        SELECT LRG.ITEM_LRGCLAS_CD         AS GROUP_CODE          /* Large category code(대분류코드)  */
+             , SML.ITEM_SMLCLAS_CD         AS CODE                /* Small category code(소분류코드)  */
+             , SML.ITEM_SMLCLAS_NM         AS TEXT                /* Small category name(소분류코드명) */
+          FROM T_ITEM_LRGCLAS            LRG     /* Large category item code(항목 대분류 코드) Table */
+         INNER JOIN T_ITEM_SMLCLAS_CD    SML     /* Small category item code(항목 소분류 코드) Table */
+            ON LRG.ITEM_LRGCLAS_CD = SML.ITEM_LRGCLAS_CD
+         WHERE LRG.USE_YN            = 'Y'
+           AND SML.USE_YN            = 'Y'
+           AND LRG.ITEM_LRGCLAS_CD = #{LRGCLAS_CD}
+         ORDER BY LRG.ITEM_LRGCLAS_CD, SML.SRT_SEQ
+    </select>
+    
+    <!-- Search Major Category Code(대분류 코드 목록 조회) -->
+    <select id="SELECT_LRGCLAS_LIST" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+        /* DATA1010.SELECT_LRGCLAS_LIST : Search Major Category Code(대분류 코드 목록 조회) */
+        SELECT ITEM_LRGCLAS_CD                  /* Large category code(대분류코드) */
+             , ITEM_LRGCLAS_NM                  /* Large category name(대분류코드명) */
+             , NVL(SRT_SEQ, 0) AS SRT_SEQ       /* Sorting order(정렬순서) */
+             , MEMO                             /* Memo(메모) */
+             , USE_YN                           /* Use Y/N(사용여부) */
+          FROM T_ITEM_LRGCLAS
+         WHERE 1=1
+         <if test="ITEM_LRGCLAS_CD != null and ITEM_LRGCLAS_CD != ''">
+           AND ITEM_LRGCLAS_CD LIKE #{ITEM_LRGCLAS_CD} || '%'
+         </if>
+         <if test="ITEM_LRGCLAS_NM  != null and ITEM_LRGCLAS_NM  != ''">
+           AND (UPPER(ITEM_LRGCLAS_NM) LIKE '%' || UPPER(#{ITEM_LRGCLAS_NM}) || '%')
+         </if>
+         <if test="USE_YN  != null and USE_YN  != ''">
+           AND USE_YN = #{USE_YN}
+         </if>
+      ORDER BY NVL(SRT_SEQ, 0)
+             , ITEM_LRGCLAS_CD
+    </select>
+    
+    <!-- Save and modify Major category code (대분류 코드 등록 ,수정) -->
+    <insert id="MERGE_LRGCLAS" parameterType="java.util.HashMap">
+        /* DATA1010.MERGE_LRGCLAS : Save and modify Major category code (대분류 코드 등록,수정) */
+        MERGE INTO T_ITEM_LRGCLAS A
+        USING DUAL
+           ON (
+               A.ITEM_LRGCLAS_CD = #{ITEM_LRGCLAS_CD}           /* Large category code(대분류코드) */
+              )
+        WHEN MATCHED THEN
+            UPDATE
+            SET ITEM_LRGCLAS_NM = #{ITEM_LRGCLAS_NM}                         /* Large category name(대분류코드명) */
+              , SRT_SEQ         = TO_NUMBER(REPLACE(#{SRT_SEQ}, ',', ''))    /* Sorting order(정렬순서) */
+              , MEMO            = #{MEMO}                                    /* Memo(메모) */
+              , USE_YN          = #{USE_YN}                                  /* Use Y/N(사용여부) */
+              , LST_UPD_ID      = #{GBL_USR_ID}                              /* Last update ID(최종 변경 ID) */
+              , LST_UPD_DTM     = FN_LOC_DTM(#{GBL_UTC_GAP})                 /* Last update date-time(최종 변경 일시) */
+          WHERE 1=1
+            AND ITEM_LRGCLAS_CD = #{ITEM_LRGCLAS_CD}            
+        WHEN NOT MATCHED THEN
+           INSERT
+            (
+                ITEM_LRGCLAS_CD             /* Large category code(대분류코드) */
+              , ITEM_LRGCLAS_NM             /* Large category name(대분류코드명) */
+              , SRT_SEQ                     /* Sorting order(정렬순서) */
+              , MEMO                        /* Memo(메모) */
+              , USE_YN                      /* Use Y/N(사용여부) */
+              , REG_ID                      /* Register ID(등록 ID) */
+              , REG_DTM                     /* Register date-time(등록 일시) */
+              , LST_UPD_ID                  /* Last update ID(최종 변경 ID) */
+              , LST_UPD_DTM                 /* Last update date-time(최종 변경 일시) */
+            )
+            VALUES
+            (
+                #{ITEM_LRGCLAS_CD}
+              , #{ITEM_LRGCLAS_NM}
+              , TO_NUMBER(REPLACE(#{SRT_SEQ}, ',', ''))
+              , #{MEMO}
+              , #{USE_YN}
+              , #{GBL_USR_ID}
+              , FN_LOC_DTM(#{GBL_UTC_GAP})
+              , #{GBL_USR_ID}
+              , FN_LOC_DTM(#{GBL_UTC_GAP})
+            )
+    </insert>
+    
+    <!-- Delete Large code(대분류 코드 삭제) -->
+    <delete id="DELETE_LRGCLAS" parameterType="java.util.HashMap">
+        /* DATA1010.DELETE_LRGCLAS : Delete Large code(대분류 코드 삭제) */
+        DELETE
+          FROM T_ITEM_LRGCLAS
+         WHERE ITEM_LRGCLAS_CD = #{ITEM_LRGCLAS_CD}           /* Large category code(대분류코드) */
+    </delete>    
+    
+    
+    <!-- Search Small category code(소분류 코드 조회) -->
+    <select id="SELECT_SMLCLAS_LIST" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+        /* DATA1010.SELECT_SMLCLAS_LIST : Search Small category code(소분류 코드 조회) */
+        SELECT DISTINCT 
+               ITEM_LRGCLAS_CD            /* Large category code(대분류코드) */
+             , ITEM_SMLCLAS_CD            /* Small category code(소분류코드) */
+             , ITEM_SMLCLAS_NM            /* Small category name(소분류코드명) */
+             , HGRK_SMLCLAS_CD            /* higher small category code(상위 소분류 코드) */
+             , HGRK_LRGCLAS_CD            /* higher large category code(상위 대분류 코드) */
+             , MEMO                       /* Memo(메모) */
+             , USE_YN                     /* Use Y/N(사용여부) */
+             , NVL(SRT_SEQ, 0) AS SRT_SEQ /* Sorting order(정렬순서) */
+          FROM T_ITEM_SMLCLAS_CD
+         WHERE 1=1
+           AND ITEM_LRGCLAS_CD = #{ITEM_LRGCLAS_CD}
+        <if test="ITEM_SMLCLAS_CD != null and ITEM_SMLCLAS_CD != ''">
+           AND ITEM_SMLCLAS_CD LIKE #{ITEM_SMLCLAS_CD} || '%'
+        </if>
+        <if test="ITEM_SMLCLAS_NM  != null and ITEM_SMLCLAS_NM  != ''">
+           AND (UPPER(ITEM_SMLCLAS_NM) LIKE '%' || UPPER(#{ITEM_SMLCLAS_NM }) || '%')
+        </if>
+        <if test="USE_YN  != null and USE_YN  != ''">
+           AND USE_YN = #{USE_YN}
+        </if>        
+      ORDER BY NVL(SRT_SEQ, 0)
+             , ITEM_SMLCLAS_NM
+    </select>
+    
+    <!-- Register small category code(소분류 코드 등록) -->
+    <insert id="MERGE_SMLCLAS" parameterType="java.util.HashMap">
+        /* DATA1010.MERGE_SMLCLAS : Register small category code(소분류 코드 등록) */
+        MERGE INTO T_ITEM_SMLCLAS_CD A
+        USING DUAL
+           ON (
+                    A.ITEM_LRGCLAS_CD = #{ITEM_LRGCLAS_CD}          /* Large category code(대분류코드) */
+                AND A.ITEM_SMLCLAS_CD = #{ITEM_SMLCLAS_CD}          /* Small category code(소분류코드) */
+              )
+        WHEN MATCHED THEN
+            UPDATE 
+               SET ITEM_SMLCLAS_NM = #{ITEM_SMLCLAS_NM}             /* Small category name(소분류코드명) */
+                 , SRT_SEQ         = TO_NUMBER(REPLACE(#{SRT_SEQ}, ',', ''))   /* Sorting order(정렬순서) */
+                 , HGRK_SMLCLAS_CD = #{HGRK_SMLCLAS_CD}             /* higher small category code(상위 소분류 코드) */
+                 , HGRK_LRGCLAS_CD = #{HGRK_LRGCLAS_CD}             /* higher large category code(상위 대분류 코드) */                 
+                 , MEMO            = #{MEMO}                        /* Memo(메모) */
+                 , USE_YN          = #{USE_YN}                      /* Use Y/N(사용여부) */
+                 , LST_UPD_ID      = #{GBL_USR_ID}                  /* Last update ID(최종 변경 ID) */
+                 , LST_UPD_DTM     = FN_LOC_DTM(#{GBL_UTC_GAP})     /* Last update date-time(최종 변경 일시) */
+             WHERE 1=1
+               AND ITEM_LRGCLAS_CD = #{ITEM_LRGCLAS_CD}             /* Large category code(대분류코드) */
+               AND ITEM_SMLCLAS_CD = #{ITEM_SMLCLAS_CD}             /* Small category code(소분류코드) */
+        WHEN NOT MATCHED THEN
+            INSERT 
+                (
+                    ITEM_LRGCLAS_CD         /* Large category code(대분류코드) */
+                  , ITEM_SMLCLAS_CD         /* Small category code(소분류코드) */
+                  , ITEM_SMLCLAS_NM         /* Small category name(소분류코드명) */
+                  , SRT_SEQ                 /* Sorting order(정렬순서) */
+                  , HGRK_SMLCLAS_CD         /* higher small category code(상위 소분류 코드) */
+                  , HGRK_LRGCLAS_CD         /* higher large category code(상위 대분류 코드) */      
+                  , MEMO                    /* Memo(메모) */
+                  , USE_YN                  /* Use Y/N(사용여부) */
+                  , REG_ID                  /* Register ID(등록 ID) */
+                  , REG_DTM                 /* Register date-time(등록 일시) */
+                  , LST_UPD_ID              /* Last update ID(최종 변경 ID) */
+                  , LST_UPD_DTM             /* Last update date-time(최종 변경 일시) */
+                )
+                VALUES
+                (
+                    #{ITEM_LRGCLAS_CD}
+                  , #{ITEM_SMLCLAS_CD}
+                  , #{ITEM_SMLCLAS_NM}
+                  , TO_NUMBER(REPLACE(#{SRT_SEQ}, ',', ''))
+                  , #{HGRK_SMLCLAS_CD}
+                  , #{HGRK_LRGCLAS_CD}
+                  , #{MEMO}
+                  , #{USE_YN}
+                  , #{GBL_USR_ID}
+                  , FN_LOC_DTM(#{GBL_UTC_GAP})
+                  , #{GBL_USR_ID}
+                  , FN_LOC_DTM(#{GBL_UTC_GAP})
+                )
+    </insert>
+        
+    <!-- Delete Small code(대분류 코드 삭제) -->
+    <delete id="DELETE_SMLCLAS" parameterType="java.util.HashMap">
+        /* DATA1010.DELETE_SMLCLAS : Delete Small code(소분류 코드 삭제) */
+        DELETE
+          FROM T_ITEM_SMLCLAS_CD
+         WHERE 1=1
+           AND ITEM_LRGCLAS_CD = #{ITEM_LRGCLAS_CD}     /* Large category code(대분류코드) */
+           AND ITEM_SMLCLAS_CD = #{ITEM_SMLCLAS_CD}     /* Small category code(소분류코드) */ 
+    </delete>
+    
+    <!-- Major category code duplicate check(대분류 코드 중복 조회) -->
+    <select id="SELECT_DUP_CHK_LRCLAS" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+        /* DATA1010.SELECT_DUP_CHK_LRCLAS : Major category code duplicate check(대분류 코드 중복 조회) */
+        SELECT COUNT(ITEM_LRGCLAS_CD)    AS CNT
+          FROM T_ITEM_LRGCLAS
+         WHERE 1=1
+           AND ITEM_LRGCLAS_CD = #{ITEM_LRGCLAS_CD}     /* Large category code(대분류코드) */
+    </select>
+    
+    
+    <!-- Small category code duplicate check(소분류 코드 중복 조회) -->
+    <select id="SELECT_DUP_CHK_SMLCLAS" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+        /* DATA1010.SELECT_DUP_CHK_SMLCLAS : Small category code duplicate check(소분류 코드 중복 조회) */
+        SELECT COUNT(ITEM_SMLCLAS_CD)    AS CNT
+          FROM T_ITEM_SMLCLAS_CD
+         WHERE 1=1
+           AND ITEM_LRGCLAS_CD = #{ITEM_LRGCLAS_CD}     /* Large category code(대분류코드) */
+           AND ITEM_SMLCLAS_CD = #{ITEM_SMLCLAS_CD}     /* Small category code(소분류코드) */
+    </select>
+ 
+</mapper>

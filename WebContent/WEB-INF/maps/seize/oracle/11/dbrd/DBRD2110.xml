@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="DBRD2110">
+
+    <resultMap type="hashmap" id="SELECT_FAVR_STT_RESULTSET"></resultMap>
+    <!-- Search Favorite Statistics(Favorite 관련 통계 조회) --> 
+    <select id="SELECT_FAVR_STT" statementType="CALLABLE"  parameterType="java.util.HashMap">
+        /* DBRD2110.SELECT_FAVR_STT : Search Favorite Statistics(Favorite 관련 통계 조회) */      
+        
+        DECLARE 
+            V_TODAY VARCHAR2(8) := '';
+            p_rc   SYS_REFCURSOR;
+        
+        BEGIN    
+         
+            SELECT FN_LOC_DT(#{GBL_UTC_GAP}) INTO V_TODAY FROM DUAL;
+            
+            
+            IF #{SRCH_END_DT} >= V_TODAY THEN
+            
+                OPEN p_rc FOR
+	                        
+                WITH DATES_WANTED AS (
+                    SELECT (TO_DATE(#{SRCH_STR_DT},'YYYYMMDD') - 1) + LEVEL AS DT 
+                      FROM DUAL 
+                   CONNECT BY LEVEL <![CDATA[ <= ]]> (SELECT TO_DATE(#{SRCH_END_DT},'YYYYMMDD') - 1 - TO_DATE(#{SRCH_STR_DT},'YYYYMMDD') 
+                      FROM DUAL) + 1
+                )     	                        
+	                        
+			    SELECT SUBSTR(V_TODAY, 0, 4) || '-' || SUBSTR(V_TODAY, 5, 2) || '-' || SUBSTR(V_TODAY, 7, 2) AS DT                    /* Date of Today */
+			         , NVL(ROUND(SUM(FAVOR_APCL_NCNT)/SUM(DECODE(FAVOR_TOT_NCNT, 0, NULL, FAVOR_TOT_NCNT)) * 100, 2), 0) AS FAVR_RT   /* Favor application count(Favor적용건수)/Total count(총 건수)*100 */
+			      FROM T_MKT_HIST
+			    
+			     WHERE 1=1
+			       AND REG_DT = V_TODAY		       
+	              <if test="AREA_CD != null and AREA_CD != ''">         
+	               AND AREA_CD = #{AREA_CD}
+	              </if> 
+	              <if test="CITY_CD != null and CITY_CD != ''">
+	               AND CITY_CD = #{CITY_CD}
+	              </if>    		       
+			
+			     UNION ALL
+			    SELECT TO_CHAR(DW.DT, 'YYYY-MM-DD') AS DT                                                                                            /* Basic Date(기준일자) */
+			         , NVL(ROUND(SUM(SM.FAVOR_APCL_NCNT)/DECODE(SUM(SM.FAVOR_TOT_NCNT), 0, NULL, SUM(SM.FAVOR_TOT_NCNT)) * 100, 2), 0) AS FAVR_RT    /* Favor application count(Favor적용건수)/Total count(총 건수)*100 */
+			      FROM DATES_WANTED DW
+			    
+                  LEFT OUTER JOIN (
+                        SELECT BASC_DT
+                             , FAVOR_APCL_NCNT
+                             , FAVOR_TOT_NCNT
+                          FROM T_STS_MKT
+                
+                         WHERE 1=1
+                     <if test="AREA_CD != null and AREA_CD != ''">         
+                         AND   AREA_CD = #{AREA_CD}
+                     </if>            
+                     <if test="CITY_CD != null and CITY_CD != ''">
+                         AND   CITY_CD = #{CITY_CD}
+                     </if>
+                  ) SM
+            
+                   ON SM.BASC_DT = TO_CHAR(DW.DT, 'YYYYMMDD')   
+                                         
+			     GROUP BY DT
+			     ORDER BY DT DESC
+			     ;
+			     
+            ELSE
+            
+                OPEN p_rc FOR   
+                
+                WITH DATES_WANTED AS (
+                    SELECT (TO_DATE(#{SRCH_STR_DT},'YYYYMMDD') - 1) + LEVEL AS DT 
+                      FROM DUAL 
+                   CONNECT BY LEVEL <![CDATA[ <= ]]> (SELECT TO_DATE(#{SRCH_END_DT},'YYYYMMDD') - TO_DATE(#{SRCH_STR_DT},'YYYYMMDD') 
+                      FROM DUAL) + 1
+                )                       
+                
+                SELECT TO_CHAR(DW.DT, 'YYYY-MM-DD') AS DT                                                                                           /* Basic Date(기준일자) */
+                     , NVL(ROUND(SUM(SM.FAVOR_APCL_NCNT)/DECODE(SUM(SM.FAVOR_TOT_NCNT), 0, NULL, SUM(SM.FAVOR_TOT_NCNT)) * 100, 2), 0) AS FAVR_RT   /* Favor application count(Favor적용건수)/Total count(총 건수)*100 */
+                  FROM DATES_WANTED DW
+                           
+                  LEFT OUTER JOIN (
+                        SELECT BASC_DT
+                             , FAVOR_APCL_NCNT
+                             , FAVOR_TOT_NCNT
+                          FROM T_STS_MKT
+                
+                         WHERE 1=1
+                     <if test="AREA_CD != null and AREA_CD != ''">         
+                         AND   AREA_CD = #{AREA_CD}
+                     </if>            
+                     <if test="CITY_CD != null and CITY_CD != ''">
+                         AND   CITY_CD = #{CITY_CD}
+                     </if>
+                  ) SM
+            
+                   ON SM.BASC_DT = TO_CHAR(DW.DT, 'YYYYMMDD')  
+                   
+                 GROUP BY DT
+                 ORDER BY DT DESC
+                 ;
+                 
+            END IF
+            ;
+            
+            #{resultList, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=SELECT_FAVR_STT_RESULTSET } := p_rc;
+            
+         END;                                    			     
+    </select>
+    
+    <!-- Search Favorite Statistics(Favorite 관련 통계 조회) --> 
+    <select id="SELECT_FAVR_STT_BACKUP" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+        /* DBRD2110.SELECT_FAVR_STT : Search Favorite Statistics(Favorite 관련 통계 조회) */      
+            SELECT #{SRCH_TODAY} AS DT                                                           /* Date of Today */
+                 , NVL(ROUND(SUM(FAVOR_APCL_NCNT)/SUM(FAVOR_TOT_NCNT) * 100, 2), 0) AS FAVR_RT   /* Favor application count(Favor적용건수)/Total count(총 건수)*100 */
+              FROM T_MKT_HIST
+            
+             WHERE 1=1
+               AND REG_DT = #{SRCH_TODAY}              
+              <if test="AREA_CD != null and AREA_CD != ''">         
+               AND AREA_CD = #{AREA_CD}
+              </if> 
+              <if test="CITY_CD != null and CITY_CD != ''">
+               AND CITY_CD = #{CITY_CD}
+              </if>                
+        
+             UNION ALL
+            SELECT BASC_DT AS DT                                                                 /* Basic Date(기준일자) */
+                 , NVL(ROUND(FAVOR_APCL_NCNT/FAVOR_TOT_NCNT * 100, 2), 0) AS FAVR_RT             /* Favor application count(Favor적용건수)/Total count(총 건수)*100 */
+              FROM T_STS_MKT
+            
+             WHERE 1=1
+               AND BASC_DT BETWEEN #{SRCH_STR_DT} AND #{SRCH_END_DT}
+              <if test="AREA_CD != null and AREA_CD != ''">         
+               AND AREA_CD = #{AREA_CD}
+              </if> 
+              <if test="CITY_CD != null and CITY_CD != ''">
+               AND CITY_CD = #{CITY_CD}
+              </if> 
+        
+             ORDER BY DT DESC
+    </select>    
+</mapper>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="DBRD2060">
+    <!-- Search File Sending State(파일 전송 현황 조회) --> 
+    <select id="SELECT_FILE_SEND_STT" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+        /* DBRD2060.SELECT_FILE_SEND_STT : Search File Sending State(파일 전송 현황 조회) */
+        SELECT NVL(SUM(CASE WHEN A.TRMS_PROC_ST_CD = 'P' THEN 1 END), 0) AS PRCSS     /* Transmission process status code(전송처리상태코드) */
+             , NVL(SUM(CASE WHEN A.TRMS_PROC_ST_CD = 'C' THEN 1 END), 0) AS SCSS      /* Transmission process status code(전송처리상태코드) */
+             , NVL(SUM(CASE WHEN A.TRMS_PROC_ST_CD = 'F' THEN 1 END), 0) AS FAIL      /* Transmission process status code(전송처리상태코드) */
+             , NVL(SUM(CASE WHEN A.TRMS_PROC_ST_CD = 'W' THEN 1 END), 0) AS WAIT      /* Transmission process status code(전송처리상태코드) */
+          FROM T_MKT_FILE_TRMS_TGT A
+          
+          LEFT OUTER JOIN T_MKT_FILE_TRMS_MGNT B
+            ON A.JOB_ID = B.JOB_ID
+            
+         WHERE B.RSV_DTM BETWEEN FN_LOC_DT(#{GBL_UTC_GAP}) || '000000' AND FN_LOC_DT(#{GBL_UTC_GAP}) || '235959'
+    </select>
+</mapper>

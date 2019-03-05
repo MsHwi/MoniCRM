@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="DBRD2080">
+    
+    <!-- Search Marketing Scheduled List(마케팅 예정 목록 조회) --> 
+    <select id="SELECT_MRK_LIST" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+        /* DBRD2080.SELECT_MRK_LIST : Search Marketing Scheduled List(마케팅 예정 목록 조회) */
+		SELECT MKT_NM AS MKT_NM                                   /* Marketing name(마케팅명) */
+		     , MKT_STR_DT || MKT_STR_TM || '00' AS MKT_STR_DTM    /* Marketing start date(마케팅 시작일자) + Marketing start time(마케팅 시작시간) */
+		  FROM T_MKT_INFO
+		 WHERE MKT_STR_DT || MKT_STR_TM BETWEEN FN_LOC_DT(#{GBL_UTC_GAP}) || '0001' AND TO_CHAR((ADD_MONTHS(TO_DATE(FN_LOC_DTM(#{GBL_UTC_GAP}), 'YYYYMMDDHH24MISS'), TO_NUMBER(#{PRD_CD})) + 1), 'YYYYMMDD') || '0000'
+           AND USE_YN = 'Y' 
+           		 
+      ORDER BY MKT_STR_DTM   		           
+    </select>    
+</mapper>

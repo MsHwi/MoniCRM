@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="DBRD2040">
+
+<!--     <resultMap type="hashmap" id="SELECT_SURV_RT_RESULTSET"></resultMap> -->
+    <!-- Search Survey Answering Rate(Survey 응답률 조회) --> 
+<!--     <select id="SELECT_SURV_RT" statementType="CALLABLE" parameterType="java.util.HashMap"> -->
+    <select id="SELECT_SURV_RT" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+        /* DBRD2040.SELECT_SURV_RT : Search Survey Answering Rate(Survey 응답률 조회) */
+
+
+        BEGIN    
+         
+            DECLARE @V_TODAY VARCHAR(8) = ''
+            SELECT @V_TODAY = dbo.FN_LOC_DT(#{GBL_UTC_GAP});
+
+            IF #{SRCH_END_DT} >= @V_TODAY
+
+            BEGIN
+            
+                SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+                SET NOCOUNT ON;                         
+                        
+			    WITH DATA AS (
+			        SELECT BASC_DT AS DT                          /* Basic Date(기준일자) */
+			             , SVY_TOT_NCNT                           /* Survey total count(Survey총건수) */
+			             , SVY_REPS_NCNT                          /* Survey response count(Survey응답건수) */
+			          FROM T_STS_MKT WITH(NOLOCK) 
+			         WHERE BASC_DT BETWEEN #{SRCH_STR_DT} AND #{SRCH_END_DT}
+			          <if test="AREA_CD != null and AREA_CD != ''">         
+			           AND AREA_CD = #{AREA_CD}
+			          </if> 
+			          <if test="CITY_CD != null and CITY_CD != ''">
+			           AND CITY_CD = #{CITY_CD}
+			          </if>  
+			
+			         UNION ALL
+			        SELECT A.REG_DT AS DT                         /* Register date(등록 일자)*/
+			             , COUNT(*)  AS SVY_TOT_NCNT              /* Survey total count(Survey총건수) */
+			             , ISNULL(SUM(CASE WHEN A.SVY_RSPS_YN='Y' THEN 1 ELSE 0 END),0) AS SVY_REPS_NCNT     /* Survey response count(Survey응답건수) */
+			          FROM T_MKT_RSPS_HIST A WITH(NOLOCK) 
+			         
+			         INNER JOIN T_MKT_HIST B WITH(NOLOCK) 
+			            ON A.TRAN_NO = B.TRAN_NO
+			           AND A.CRD_NO = B.CRD_NO
+			           AND A.CRD_NO_HASH = B.CRD_NO_HASH 
+			        
+			         WHERE A.REG_DT = @V_TODAY
+			           AND A.MKT_TYP_CD = '03'
+			          <if test="AREA_CD != null and AREA_CD != ''">         
+			           AND B.AREA_CD = #{AREA_CD}
+			          </if> 
+			          <if test="CITY_CD != null and CITY_CD != ''">
+			           AND B.CITY_CD = #{CITY_CD}
+			          </if>           
+			        
+			         GROUP BY A.REG_DT		          
+			    )		
+			
+			    SELECT ISNULL(SUM(SVY_REPS_NCNT), 0) AS VALUE                            /* Survey response count(Survey응답건수) */
+			         , 'Answered' AS LABEL                                               /* label for chart */
+			      FROM DATA WITH(NOLOCK) 
+			
+			     UNION ALL
+			    SELECT ISNULL(SUM(ISNULL(SVY_TOT_NCNT, 0) - ISNULL(SVY_REPS_NCNT, 0)), 0) AS VALUE   /* Total count(총 건수) - Survey response count(Survey응답건수) */
+			         , 'Not-Answered' AS LABEL                                                       /* label for chart */
+			      FROM DATA WITH(NOLOCK) 
+                 OPTION (MAXRECURSION 365)			      
+			      ;
+			      
+            END 
+                  
+            ELSE
+
+            BEGIN
+            
+                SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+                SET NOCOUNT ON;  
+                
+                WITH DATA AS (
+                    SELECT BASC_DT AS DT                          /* Basic Date(기준일자) */
+                         , SVY_TOT_NCNT                           /* Survey total count(Survey총건수) */
+                         , SVY_REPS_NCNT                          /* Survey response count(Survey응답건수) */
+                      FROM T_STS_MKT WITH(NOLOCK) 
+                     WHERE BASC_DT BETWEEN #{SRCH_STR_DT} AND #{SRCH_END_DT}
+                      <if test="AREA_CD != null and AREA_CD != ''">         
+                       AND AREA_CD = #{AREA_CD}
+                      </if> 
+                      <if test="CITY_CD != null and CITY_CD != ''">
+                       AND CITY_CD = #{CITY_CD}
+                      </if>   
+                )       
+            
+                SELECT ISNULL(SUM(SVY_REPS_NCNT), 0) AS VALUE                            /* Survey response count(Survey응답건수) */
+                     , 'Answered' AS LABEL                                               /* label for chart */
+                  FROM DATA WITH(NOLOCK) 
+            
+                 UNION ALL
+                SELECT ISNULL(SUM(ISNULL(SVY_TOT_NCNT, 0) - ISNULL(SVY_REPS_NCNT, 0)), 0) AS VALUE   /* Total count(총 건수) - Survey response count(Survey응답건수) */
+                     , 'Not-Answered' AS LABEL                                                       /* label for chart */
+                  FROM DATA WITH(NOLOCK) 
+                 OPTION (MAXRECURSION 365)                  
+                  ;
+                
+            END 
+            
+         END                       			         
+                       
+    </select>
+    
+    <!-- Search Survey Answering Rate(Survey 응답률 조회) --> 
+    <select id="SELECT_SURV_RT_BACKUP" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+        /* DBRD2040.SELECT_SURV_RT : Search Survey Answering Rate(Survey 응답률 조회) */
+            WITH DATA AS (
+                SELECT BASC_DT AS DT                          /* Basic Date(기준일자) */
+                     , SVY_TOT_NCNT                           /* Survey total count(Survey총건수) */
+                     , SVY_REPS_NCNT                          /* Survey response count(Survey응답건수) */
+                  FROM T_STS_MKT
+                 WHERE BASC_DT BETWEEN #{SRCH_STR_DT} AND #{SRCH_END_DT}
+                  <if test="AREA_CD != null and AREA_CD != ''">         
+                   AND AREA_CD = #{AREA_CD}
+                  </if> 
+                  <if test="CITY_CD != null and CITY_CD != ''">
+                   AND CITY_CD = #{CITY_CD}
+                  </if>  
+        
+                 UNION ALL
+                SELECT A.REG_DT AS DT                         /* Register date(등록 일자)*/
+                     , COUNT(*)  AS SVY_TOT_NCNT              /* Survey total count(Survey총건수) */
+                     , NVL(SUM(CASE WHEN A.SVY_RSPS_YN='Y' THEN 1 ELSE 0 END),0) AS SVY_REPS_NCNT     /* Survey response count(Survey응답건수) */
+                  FROM T_MKT_RSPS_HIST A
+                 
+                 INNER JOIN T_MKT_HIST B
+                    ON A.TRAN_NO = B.TRAN_NO
+                   AND A.CRD_NO = B.CRD_NO
+                   AND A.CRD_NO_HASH = B.CRD_NO_HASH 
+                
+                 WHERE A.REG_DT = #{SRCH_TODAY}
+                   AND A.MKT_TYP_CD = '03'
+                  <if test="AREA_CD != null and AREA_CD != ''">         
+                   AND B.AREA_CD = #{AREA_CD}
+                  </if> 
+                  <if test="CITY_CD != null and CITY_CD != ''">
+                   AND B.CITY_CD = #{CITY_CD}
+                  </if>           
+                
+                 GROUP BY A.REG_DT                
+        
+                 ORDER BY DT DESC
+            )       
+        
+            SELECT NVL(SUM(SVY_REPS_NCNT), 0) AS VALUE                            /* Survey response count(Survey응답건수) */
+                 , 'Answered' AS LABEL                                            /* label for chart */
+              FROM DATA
+        
+             UNION ALL
+            SELECT NVL(SUM(SVY_TOT_NCNT - SVY_REPS_NCNT), 0) AS VALUE             /* Total count(총 건수) - Survey response count(Survey응답건수) */
+                 , 'Not-Answered' AS LABEL                                        /* label for chart */
+              FROM DATA   
+                       
+    </select>
+</mapper>

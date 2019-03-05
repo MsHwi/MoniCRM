@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Sat Apr 02 22:02:57 KST 2016-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="MRKT3030">
+        
+    <!-- Search Marketing Pending List (마케팅 대기 목록 조회) -->
+    <select id="SELECT_MKT_PENDING_LIST" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+        /* MRKT3030.SELECT_MKT_PENDING_LIST : Search Marketing Pending List (마케팅 대기 목록 조회) */
+		SELECT TM.JOB_METH_CD         	/* Job method code(작업방법코드) */
+             , TM.JOB_TGT_PROC_CD
+             , FN_SMLCD_NM('JOB_TGT_PROC_CD', TM.JOB_TGT_PROC_CD, '', 'Y') AS JOB_TGT_PROC
+		     , MKT.MKT_NM            	/* Marketing name(마케팅명) */
+		     , TM.MKT_NO              	/* Marketing number(마케팅번호) */
+		     , TM.RSV_DTM             	/* Job start datetime(예약일시) */ 
+		     , TM.ALL_TGT_NCNT        	/* All target count(전체대상건수) */
+		     , TM.REG_ID              	/* Register ID(등록 ID) */
+             , TM.TRMS_PROC_ST_CD
+             , TM.JOB_ID
+		  FROM T_MKT_FILE_TRMS_MGNT TM
+          LEFT JOIN T_MKT_INFO MKT
+		    ON TM.MKT_NO = MKT.MKT_NO  
+		 WHERE TM.TRMS_PROC_ST_CD IN ('W','N')
+		   AND NVL(TM.CAN_YN,'N') = 'N'
+	  ORDER BY TM.RSV_DTM, TM.MKT_NO
+    </select>
+    
+    <select id="SELECT_TGT_PROC_NM" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+    	
+    	/* MRKT3030.SELECT_TGT_PROC_NM : Search target process name (작업 명칭 조회) */
+		SELECT B.SMLCLAS_CD_NM AS TGT_NM
+		  FROM T_COM_CD_LRGCLAS A
+		  JOIN T_COM_CD_SMLCLAS B
+		    ON A.LRGCLAS_CD = B.LRGCLAS_CD
+		   AND A.LRGCLAS_CD = 'JOB_TGT_PROC_CD'
+		 WHERE B.SMLCLAS_CD = #{TGT_CD}
+    
+    </select>
+     
+    <!-- Make job id (JOB_ID 생성) -->
+    <select id="SELECT_SET_JOB_ID" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+    	
+        /* MRKT3030.SELECT_SET_JOB_ID : Make job id (JOB_ID 생성) */
+          SELECT FN_LOC_DT(#{GBL_UTC_GAP}) || LPAD(SEQ_T_MKT_FILE_TRMS_MGNT.NEXTVAL, 12, '0') AS JOB_ID
+            FROM DUAL
+    </select>
+    
+    <!-- Save transfer management info (전송관리 저장)  -->
+    <insert id="INSERT_TRMS_MGNT" parameterType="java.util.HashMap">
+    
+        	/* MRKT3030.INSERT_TRMS_MGNT : Save transfer management info (전송관리 저장) */
+            INSERT INTO T_MKT_FILE_TRMS_MGNT
+            ( 
+				  JOB_ID
+				, ORG_JOB_ID
+				, JOB_METH_CD
+				, JOB_PROC_CD
+				, JOB_TGT_PROC_CD
+				, RSV_DTM
+				, MKT_NO
+				, TRMS_PROC_ST_CD
+				, TRMS_PROC_NCNT
+				, TRMS_PROC_FAIL_NCNT
+				, TRMS_PROC_STR_DTM
+				, TRMS_PROC_END_DTM
+				, ALL_TGT_NCNT
+				, CAN_YN
+				, FILE_ID
+				, REG_ID
+				, REG_DTM
+				, LST_UPD_ID
+				, LST_UPD_DTM 
+            )
+            VALUES
+            ( 
+				  #{JOB_ID}						/* Job ID(작업ID) */
+				, #{ORG_JOB_ID}					/* Original Job ID(원작업ID) */
+				, #{JOB_METH_CD}				/* Job method code(작업방법코드) */
+				, #{JOB_PROC_CD}				/* Job Process code(작업처리코드) */
+				, #{JOB_TGT_PROC_CD}			/* Job target process code(작업대상처리코드) */
+				, (CASE WHEN #{JOB_METH_CD} = 'I' THEN FN_LOC_DTM(#{GBL_UTC_GAP}) ELSE #{RSV_DTM} END)	/* Job start datetime(예약일시) */
+				, #{MKT_NO}						/* Marketing number(마케팅번호) */
+				, #{TRMS_PROC_ST_CD}			/* Transmission process status code(전송처리상태코드) */
+				, #{TRMS_PROC_NCNT}				/* Transmission process count(전송처리건수) */
+				, #{TRMS_PROC_FAIL_NCNT}		/* Transmission process fail count(전송처리실패건수) */
+				, #{TRMS_PROC_STR_DTM}			/* Transmission process start date-time(전송처리시작일시) */
+				, #{TRMS_PROC_END_DTM}			/* Transmission process end date-time(전송처리종료일시) */
+				, #{ALL_TGT_NCNT}				/* All target count(전체대상건수) */
+				, #{CAN_YN}						/* Cancel Y/N(취소 여부) */
+				, #{FILE_ID}					/* File ID(파일ID) */
+				, #{GBL_USR_ID}					/* Register ID(등록 ID) */
+				, FN_LOC_DTM(#{GBL_UTC_GAP})	/* Register date-time(등록 일시) */
+				, #{GBL_USR_ID}					/* Last update ID(최종 변경 ID) */
+				, FN_LOC_DTM(#{GBL_UTC_GAP})	/* Last update date-time(최종 변경 일시) */ 
+            )
+    </insert>
+    
+    <!-- Marketing file empty (마케팅 파일 제거) -->
+    <update id="EMPTY_MKT_FILE" parameterType="java.util.HashMap">
+    
+    	/* MRKT3030.EMPTY_MKT_FILE : Marketing file empty (마케팅 파일 제거)  */
+    	UPDATE T_MKT_INFO
+    	   SET FILE_DEL_YN = 'Y'			/* File delete Y/N(파일삭제여부) */		
+    	     , USE_YN = 'N'					/* Use Y/N(사용여부) */
+    	     , LST_UPD_ID = #{GBL_USR_ID}	/* Register ID(등록 ID) */
+    	     , LST_UPD_DTM = FN_LOC_DTM(#{GBL_UTC_GAP})	/* Register date-time(등록 일시) */
+    	 WHERE MKT_NO = #{MKT_NO}
+    
+    </update>
+    
+    <!-- Marketing file search (마케팅 파일 조회) -->
+    <select id="SELECT_MKT_FILE" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+    
+    	/* MRKT3030.SELECT_MKT_FILE : Marketing file search (마케팅 파일 조회) */
+		SELECT FILE_ID			/* File ID(파일ID) */
+		  FROM T_MKT_INFO
+		 WHERE MKT_NO = #{MKT_NO}
+    	
+    </select>
+    
+    <!-- Search customer/terminal set list (고객/터미널 set 리스트 조회) -->
+    <select id="SELECT_SET_LIST" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+    
+    	/* MRKT3030.SELECT_SET_LIST : Search customer/terminal set list (고객/터미널 set 리스트 조회) */
+		SELECT SET_ID			/* Set ID(그룹ID) */
+		  FROM T_MKT_SET_TRCN
+		 WHERE MKT_NO = #{MKT_NO}
+		   AND DATA_DV = #{DATA_DV}
+    </select>
+    
+    <!-- Search current root path (현재 루트 경로 조회) -->
+    <select id="SELECT_CUR_ROOT_PATH" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+    
+    	/* MRKT3030.SELECT_CUR_ROOT_PATH : Search current root path (현재 루트 경로 조회) */
+		SELECT BSVL			/* Base value(기준값) */
+			 , BASC_DV_CD	/* Base division code(기준 구분 코드) */
+		  FROM T_BSVL_INFO
+		 WHERE BASC_DV_TYP = 'AGT'
+		   AND BASC_DV_CD = 'ROOT_PATH'
+    </select>
+    
+    <!-- Search current application version (현재 어플리케이션 버전 조회) -->
+    <select id="SELECT_CUR_APP_VER" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+    
+    	/* MRKT3030.SELECT_CUR_APP_VER : Search current application version (현재 어플리케이션 버전 조회) */
+		SELECT BSVL			/* Base value(기준값) */
+			 , BASC_DV_CD	/* Base division code(기준 구분 코드) */
+		  FROM T_BSVL_INFO
+		 WHERE BASC_DV_TYP = 'AGT'
+		   AND BASC_DV_CD = 'APP_VER'
+    </select>
+    
+    <!-- Update Base value (기준정보 변경) -->
+    <update id="UPDATE_BSVL_INFO" parameterType="java.util.HashMap">
+    
+    	/* MRKT3030.UPDATE_BSVL_INFO : Update Base value (기준정보 변경) */
+		UPDATE T_BSVL_INFO
+		   SET BSVL = #{BSVL}				/* Base value(기준값) */
+		   	 , LST_UPD_ID = #{GBL_USR_ID}	/* Last update ID(최종 변경 ID) */
+		   	 , LST_UPD_DTM = FN_LOC_DTM(#{GBL_UTC_GAP}) 	/* Last update date-time(최종 변경 일시) */
+		 WHERE BASC_DV_TYP = 'AGT'
+		   AND BASC_DV_CD = #{BASC_DV_CD}
+    
+    </update>
+    
+    <!-- Insert retry terminal list (retry 터미널 리스트 등록) -->
+    <insert id="INSERT_RETRY_TMNL_LIST" parameterType="java.util.HashMap">
+    	
+    	/* MRKT3030.INSERT_RETRY_TMNL_LIST : Insert retry terminal list (retry 터미널 리스트 등록) */
+        DECLARE V_TMNL_CNT NUMBER; 			/* Retry */
+        BEGIN
+        
+        /* Insert marketing file transfer target */
+		INSERT INTO T_MKT_FILE_TRMS_TGT
+		(
+		      JOB_ID
+		    , IP_ADDR
+		    , MKT_NO
+		    , AREA_CD
+		    , CITY_CD
+		    , TRMS_PROC_ST_CD
+		    , REG_ID
+		    , REG_DTM
+		    , LST_UPD_ID
+		    , LST_UPD_DTM 
+		)
+		SELECT #{JOB_ID}							/* Job ID(작업ID) */
+		     , IP_ADDR								/* IP Address(IP주소) */
+		     , #{MKT_NO}							/* Marketing number(마케팅번호) */
+		     , AREA_CD								/* Area code(지역 코드) */
+		     , CITY_CD								/* City/District code(시 코드) */
+		     , 'N'									/* Transmission process status code(전송처리상태코드) */
+		     , #{GBL_USR_ID}						/* Register ID(등록 ID) */
+		     , FN_LOC_DTM(#{GBL_UTC_GAP})	        /* Register date-time(등록 일시) */
+		     , #{GBL_USR_ID}						/* Last update ID(최종 변경 ID) */
+		     , FN_LOC_DTM(#{GBL_UTC_GAP}) 	        /* Last update date-time(최종 변경 일시) */
+		 FROM T_MKT_FILE_TRMS_TGT
+        WHERE JOB_ID = #{ORG_JOB_ID}
+          AND TRMS_PROC_ST_CD = 'F'
+        ;
+        
+        /* Update transfer target retry status */
+        UPDATE T_MKT_FILE_TRMS_TGT
+           SET RETRY_YN = 'Y'				/* Transmission process status code(전송처리상태코드) */
+             , LST_UPD_ID = #{GBL_USR_ID}	/* Last update ID(최종 변경 ID) */
+             , LST_UPD_DTM = FN_LOC_DTM(#{GBL_UTC_GAP}) /* Last update date-time(최종 변경 일시) */
+        WHERE JOB_ID = #{ORG_JOB_ID}
+          AND TRMS_PROC_ST_CD = 'F'
+        ;
+        
+        /* Insert transfer process list */
+        INSERT INTO T_MKT_FILE_TRMS_PROC
+        (
+		      JOB_ID
+		    , IP_ADDR
+		    , MKT_NO
+		    , TRMS_PROC_ST_CD
+		    , REG_ID
+		    , REG_DTM
+		    , LST_UPD_ID
+		    , LST_UPD_DTM 
+        )
+        SELECT JOB_ID				/* Job ID(작업ID) */
+        	 , IP_ADDR				/* IP Address(IP주소) */
+        	 , MKT_NO				/* Marketing number(마케팅번호) */
+        	 , TRMS_PROC_ST_CD		/* Transmission process status code(전송처리상태코드) */
+        	 , REG_ID				/* Register ID(등록 ID) */
+        	 , REG_DTM				/* Register date-time(등록 일시) */
+        	 , LST_UPD_ID			/* Last update ID(최종 변경 ID) */
+        	 , LST_UPD_DTM			/* Last update date-time(최종 변경 일시) */
+          FROM T_MKT_FILE_TRMS_TGT
+         WHERE JOB_ID = #{JOB_ID}
+         ;
+         
+         /* Search terminal count by job */
+         SELECT COUNT(JOB_ID)		/* count */
+           INTO V_TMNL_CNT
+           FROM T_MKT_FILE_TRMS_TGT
+          WHERE JOB_ID = #{JOB_ID}
+        ;
+        
+        /* Update transfer job target count */
+        UPDATE T_MKT_FILE_TRMS_MGNT
+           SET ALL_TGT_NCNT = V_TMNL_CNT	/* target count */
+         WHERE JOB_ID = #{JOB_ID}
+        ;
+        
+        END;
+    </insert>
+    
+     <!-- Insert transfer schedule by terminal (터미널 별 전송 작업 등록)  -->
+    <update id="INSERT_TRMS_BY_TMNL" parameterType="java.util.HashMap">
+
+	    /* MRKT3030.INSERT_TRMS_BY_TMNL : Insert transfer schedule by terminal (터미널 별 전송 작업 등록) */
+		DECLARE V_JOB_ID VARCHAR2(20) ;
+                V_FILE_ID VARCHAR2(20) ;
+                V_TMNL_CNT NUMBER;
+		BEGIN
+		
+		/* Search marketing file */
+		SELECT FILE_ID		/* File ID(파일ID) */
+          INTO V_FILE_ID
+          FROM T_MKT_INFO
+         WHERE MKT_NO = #{MKT_NO}
+        ;
+        
+        /* Make job id */
+        V_JOB_ID := FN_LOC_DT(#{GBL_UTC_GAP}) || LPAD(SEQ_T_MKT_FILE_TRMS_MGNT.NEXTVAL, 12, '0') ;
+        
+        /* Insert transfer management */
+        INSERT INTO T_MKT_FILE_TRMS_MGNT
+        ( 
+              JOB_ID
+            , JOB_METH_CD
+            , JOB_PROC_CD
+            , JOB_TGT_PROC_CD
+            , RSV_DTM
+            , MKT_NO
+            , TRMS_PROC_ST_CD
+            , FILE_ID
+            , REG_ID
+            , REG_DTM
+            , LST_UPD_ID
+            , LST_UPD_DTM 
+        )
+        VALUES
+        ( 
+              V_JOB_ID								/* Job ID(작업ID) */
+            , #{JOB_METH_CD}						/* Job method code(작업방법코드) */
+            , #{JOB_PROC_CD}						/* Job Process code(작업처리코드) */
+            , #{JOB_TGT_PROC_CD}					/* Job target process code(작업대상처리코드) */
+            , (CASE WHEN #{JOB_METH_CD} = 'I' THEN FN_LOC_DTM(#{GBL_UTC_GAP}) ELSE #{RSV_DTM} END)	/* Job start datetime(예약일시) */
+            , #{MKT_NO}								/* Marketing number(마케팅번호) */
+            , #{TRMS_PROC_ST_CD}					/* Transmission process status code(전송처리상태코드) */
+            , V_FILE_ID								/* File ID(파일ID) */
+            , #{GBL_USR_ID}							/* Register ID(등록 ID) */
+            , FN_LOC_DTM(#{GBL_UTC_GAP})	        /* Register date-time(등록 일시) */
+            , #{GBL_USR_ID}							/* Last update ID(최종 변경 ID) */
+            , FN_LOC_DTM(#{GBL_UTC_GAP}) 	        /* Last update date-time(최종 변경 일시) */
+        )
+        ;
+        
+        /* Insert transfer target */
+		INSERT INTO T_MKT_FILE_TRMS_TGT
+		(
+		      JOB_ID
+		    , IP_ADDR
+		    , MKT_NO
+		    , AREA_CD
+		    , CITY_CD
+		    , TRMS_PROC_ST_CD
+		    , REG_ID
+		    , REG_DTM
+		    , LST_UPD_ID
+		    , LST_UPD_DTM 
+		)
+		SELECT V_JOB_ID								/* Job ID(작업ID) */
+		     , IP_ADDR								/* IP Address(IP주소) */
+		     , #{MKT_NO}							/* Marketing number(마케팅번호) */
+		     , AREA_CD								/* Area code(지역 코드) */
+		     , CITY_CD								/* City/District code(시 코드) */
+		     , 'N'									/* Transmission process status code(전송처리상태코드) */
+		     , #{GBL_USR_ID}						/* Register ID(등록 ID) */
+		     , FN_LOC_DTM(#{GBL_UTC_GAP})	        /* Register date-time(등록 일시) */
+		     , #{GBL_USR_ID}						/* Last update ID(최종 변경 ID) */
+		     , FN_LOC_DTM(#{GBL_UTC_GAP}) 	        /* Last update date-time(최종 변경 일시) */
+		 FROM T_TMNL_INFO 
+        WHERE IP_ADDR = #{IP_ADDR}
+        ;
+		
+		/* Insert transfer process list */
+        INSERT INTO T_MKT_FILE_TRMS_PROC
+        (
+		      JOB_ID
+		    , IP_ADDR
+		    , MKT_NO
+		    , TRMS_PROC_ST_CD
+		    , REG_ID
+		    , REG_DTM
+		    , LST_UPD_ID
+		    , LST_UPD_DTM 
+        )
+        SELECT JOB_ID							/* Job ID(작업ID) */
+        	 , IP_ADDR							/* IP Address(IP주소) */
+        	 , MKT_NO							/* Marketing number(마케팅번호) */
+        	 , TRMS_PROC_ST_CD					/* Transmission process status code(전송처리상태코드) */
+        	 , REG_ID							/* Register ID(등록 ID) */
+        	 , REG_DTM							/* Register date-time(등록 일시) */
+        	 , LST_UPD_ID						/* Last update ID(최종 변경 ID) */
+        	 , LST_UPD_DTM						/* Last update date-time(최종 변경 일시) */
+          FROM T_MKT_FILE_TRMS_TGT
+         WHERE JOB_ID = V_JOB_ID
+           AND IP_ADDR = #{IP_ADDR}
+        ;
+        
+        /* Search terminal count by job */
+         SELECT COUNT(JOB_ID)					/* Count */
+           INTO V_TMNL_CNT
+           FROM T_MKT_FILE_TRMS_TGT
+          WHERE JOB_ID = V_JOB_ID
+        ;
+        
+        /* Update transfer job target count */
+        UPDATE T_MKT_FILE_TRMS_MGNT
+           SET ALL_TGT_NCNT = V_TMNL_CNT		/* target count */
+         WHERE JOB_ID = V_JOB_ID
+        ;
+		
+		END;
+
+    </update>
+    
+    <!-- SELECT_NOT_CMP_CNT : Select not complete job count(완료안된 작업 건수 조회) -->
+    <select id="SELECT_NOT_CMP_CNT" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+    	
+    	/*MRKT3030.SELECT_NOT_CMP_CNT : Select not complete job count(완료안된 작업 건수 조회) */
+		SELECT COUNT(*) AS CNT
+		  FROM T_MKT_FILE_TRMS_MGNT
+		 WHERE NVL(CAN_YN,'N') = 'N'
+		   AND NVL(TRMS_PROC_ST_CD,'N') != 'C'
+    	
+    </select>
+    
+</mapper>

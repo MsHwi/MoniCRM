@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="RPRT1020">  
+    <!-- Search Customer Gender(고객 성별 조회) --> 
+    <select id="SELECT_GNDR" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+        /* RPRT1020.SELECT_GNDR : Search Customer Gender(고객 성별 조회) */        
+            SELECT ITEM_SMLCLAS_CD AS CODE          /* Small category code(소분류코드) */
+                 , ITEM_SMLCLAS_NM AS TEXT          /* Small category name(소분류코드명) */
+              FROM T_ITEM_SMLCLAS_CD
+             WHERE ITEM_LRGCLAS_CD = 'CUST_GNDR'
+    </select>
+    
+    <!-- Search Customer Grade(고객 등급 조회) --> 
+    <select id="SELECT_GRD" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+        /* RPRT1020.SELECT_GRD : Search Customer Grade(고객 등급 조회) */        
+            SELECT ITEM_SMLCLAS_CD AS CODE          /* Small category code(소분류코드) */
+                 , ITEM_SMLCLAS_NM AS TEXT          /* Small category name(소분류코드명) */
+              FROM T_ITEM_SMLCLAS_CD
+             WHERE ITEM_LRGCLAS_CD = 'CUST_GRD'
+    </select>    
+    
+    <!-- Search for Marketing Information existing check (마케팅 정보 실재 유무 조회) --> 
+    <select id="SELECT_EXSTCHK_MKT_INFO" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+        /* RPRT1020.SELECT_EXSTCHK_MKT_INFO : Search for Marketing Information existing check (마케팅 정보 실재 유무 조회) */        
+		    SELECT MKT_NM                           /* Marketing name(마케팅명) */
+		      FROM T_MKT_INFO
+		     WHERE MKT_NO = #{MKT_NO}
+		       AND MKT_TYP_CD = '03'
+    </select>
+
+    <!-- Search survey marketing information(survey 마케팅 정보 조회) --> 
+    <select id="SELECT_SVY_MKT_INFO" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+        /* RPRT1020.SELECT_SVY_MKT_INFO : Search survey marketing information(survey 마케팅 정보 조회) */         
+            SELECT MKT_NM                      /* Marketing name(마케팅명) */
+                 , MKT_NO                      /* Marketing number(마케팅번호) */
+                 , FN_SMLCD_NM('MKT_TYP_CD', MKT_TYP_CD, #{GBL_LANG_CD}, '') AS MKT_TYP_NM     /* Marketing type code(마케팅 유형 코드) */
+                 , MEMO                        /* Memo(메모) */
+                 , MKT_STR_DT                  /* Marketing start date(마케팅 시작일자) */
+                 , MKT_END_DT                  /* Marketing end date(마케팅 종료일자) */
+                 , LST_UPD_DTM                 /* Last update date-time(최종 변경 일시) */
+              FROM T_MKT_INFO
+             WHERE 1 = 1
+               AND MKT_TYP_CD = '03'                 
+               <if test="(SRCH_STR_DT != null and SRCH_STR_DT != '') and (SRCH_END_DT != null and SRCH_END_DT != '')">
+               AND MKT_STR_DT <![CDATA[ <= ]]> #{SRCH_END_DT}
+               AND MKT_END_DT <![CDATA[ >= ]]> #{SRCH_STR_DT}
+               </if>
+               <if test="MKT_NO != null and MKT_NO != ''" >
+               AND MKT_NO = #{MKT_NO}
+               </if>           
+               <if test="MKT_NM != null and MKT_NM != ''" >
+               AND MKT_NM LIKE '%' || #{MKT_NM} || '%'
+               </if>
+               
+             ORDER BY MKT_NO
+    </select>        
+</mapper>

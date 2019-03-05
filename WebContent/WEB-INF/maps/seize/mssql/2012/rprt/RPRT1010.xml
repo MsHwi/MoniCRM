@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="RPRT1010">
+    <!-- Search marketing information(마케팅 정보 조회) --> 
+    <select id="SELECT_MKT_INFO" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+        /* RPRT1010.SELECT_MKT_INFO : Search marketing information(마케팅 정보 조회) */		 
+	        SELECT TOP 100 PERCENT
+	               MKT_NM                      /* Marketing name(마케팅명) */
+	             , MKT_NO                      /* Marketing number(마케팅번호) */
+	             , dbo.FN_SMLCD_NM('MKT_TYP_CD', MKT_TYP_CD, #{GBL_LANG_CD}, '') AS MKT_TYP_NM     /* Marketing type code(마케팅 유형 코드) */
+	             , MEMO                        /* Memo(메모) */
+	             , MKT_STR_DT                  /* Marketing start date(마케팅 시작일자) */
+	             , MKT_END_DT                  /* Marketing end date(마케팅 종료일자) */
+	             , LST_UPD_DTM	               /* Last update date-time(최종 변경 일시) */
+	          FROM T_MKT_INFO WITH(NOLOCK)
+	         WHERE 1 = 1
+               <if test="(SRCH_STR_DT != null and SRCH_STR_DT != '') and (SRCH_END_DT != null and SRCH_END_DT != '')">
+               AND MKT_STR_DT <![CDATA[ <= ]]> #{SRCH_END_DT}
+               AND MKT_END_DT <![CDATA[ >= ]]> #{SRCH_STR_DT}
+               </if>
+               <if test="MKT_NO != null and MKT_NO != ''" >
+               AND MKT_NO = #{MKT_NO}
+               </if>
+	           <if test="MKT_TYP_CD != null and MKT_TYP_CD.size() > 0">
+	           AND MKT_TYP_CD IN (<foreach item="ITEM" collection="MKT_TYP_CD" separator=",">#{ITEM}</foreach>)
+	           </if>	               
+<!-- 	               <if test="MKT_TYP_CD != null and MKT_TYP_CD != ''" > -->
+<!-- 	               AND MKT.MKT_TYP_CD = #{MKT_TYP_CD} -->
+<!-- 	               </if> -->
+               <if test="MKT_NM != null and MKT_NM != ''" >
+               AND MKT_NM LIKE '%' + #{MKT_NM} + '%'
+               </if>
+               
+	         ORDER BY MKT_NO
+    </select>
+    
+    <!-- Search 1 (1 조회) --> 
+    <select id="SELECT_1" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+        /* RPRT1010.SELECT_1: Search 1 (1 조회) */         
+            SELECT 1       
+             UNION ALL
+            SELECT 1              
+    </select>    
+</mapper>

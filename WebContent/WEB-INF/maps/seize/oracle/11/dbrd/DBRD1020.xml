@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Sat Apr 02 22:02:51 KST 2016-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="DBRD1020">
+    
+    <!-- SELECT_DBRD_LYOT : Search Dashbord Layout List(대시보드 레이아웃 리스트 조회) -->
+    <select id="SELECT_DBRD_LYOT" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+        /* DBRD1020.SELECT_DBRD_LYOT : Search Dashbord Layout List(대시보드 레이아웃 리스트 조회) */
+        SELECT LYOT_ID       /* Layout ID(레이아웃ID) */
+             , LYOT_NM       /* Layout name(레이아웃명) */
+             , LYOT_DESC     /* Layout description(레이아웃설명) */
+             , FN_SMLCD_NM('USE_YN', USE_YN, #{GBL_LANG_CD}, '') AS USE_YN_NM /* Use Y/N name(사용여부 명) */
+             , USE_YN        /* Use Y/N(사용여부) */
+             , REG_ID        /* Register ID(등록 ID) */
+             , REG_DTM       /* Register date-time(등록 일시) */
+             , LST_UPD_ID    /* Last update ID(최종 변경 ID) */
+             , LST_UPD_DTM   /* Last update date-time(최종 변경 일시) */
+          FROM T_DBRD_LYOT   /* Dashboard layout(대시보드 레이아웃) Table */
+         WHERE LYOT_ID != '0000000000'
+         <if test="LYOT_NM != null and LYOT_NM != ''">
+           AND UPPER(LYOT_NM) LIKE UPPER(#{LYOT_NM}) || '%'
+         </if>
+         ORDER BY LYOT_ID
+    </select>
+    
+    <!-- SELECT_LYOT_SET : Search Dashbord Layout set List(대시보드 레이아웃 설정 리스트 조회) -->
+    <select id="SELECT_LYOT_SET" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+        /* DBRD1020.SELECT_LYOT_SET : Search Dashbord Layout set List(대시보드 레이아웃 설정 리스트 조회) */
+        SELECT LYOT.WGT_ID          /* Widget ID(위젯ID) */
+             , WGT.WGT_NM           /* Widget name(위젯명) */
+          FROM T_DBRD_LYOT_SET LYOT  /* Dashboard layout set(대시보드 레이아웃 설정) Table */
+          LEFT OUTER JOIN T_WGT WGT  /* Widget(위젯정보) Table */
+            ON LYOT.WGT_ID = WGT.WGT_ID
+         WHERE LYOT_ID = #{LYOT_ID}
+         ORDER BY LYOT.WGT_ID
+    </select>
+    
+    <!-- UPDATE_DBRD_LYOT : Save dashboard layout Information(대시보드 레이아웃 정보 저장) -->
+    <update id="UPDATE_DBRD_LYOT" parameterType="java.util.HashMap">
+        /* DBRD1020.UPDATE_DBRD_LYOT : Save dashboard layout Information(대시보드 레이아웃 정보 저장) */
+        MERGE INTO T_DBRD_LYOT /* Dashboard layout(대시보드 레이아웃) Table */
+        USING DUAL
+           ON (
+              LYOT_ID = #{LYOT_ID}  /* Layout ID(레이아웃ID) */
+              )
+         WHEN MATCHED THEN
+       UPDATE SET
+              LYOT_NM            = #{LYOT_NM}                  /* Layout name(레이아웃명) */
+            , LYOT_DESC          = #{LYOT_DESC}                /* Layout description(레이아웃설명) */
+            , USE_YN             = #{USE_YN}                   /* Use Y/N(사용여부) */
+            , LST_UPD_ID         = #{GBL_USR_ID}               /* Last update ID(최종 변경 ID) */
+            , LST_UPD_DTM        = FN_LOC_DTM(#{GBL_UTC_GAP})  /* Last update date-time(최종 변경 일시) */
+         WHEN NOT MATCHED THEN
+       INSERT (
+              LYOT_ID            /* Layout ID(레이아웃ID) */
+            , LYOT_NM            /* Layout name(레이아웃명) */
+            , LYOT_DESC          /* Layout description(레이아웃설명) */
+            , USE_YN             /* Use Y/N(사용여부) */
+            , REG_ID             /* Register ID(등록 ID) */
+            , REG_DTM            /* Register date-time(등록 일시) */
+            , LST_UPD_ID         /* Last update ID(최종 변경 ID) */
+            , LST_UPD_DTM        /* Last update date-time(최종 변경 일시) */
+              )
+       VALUES (
+              (
+                SELECT LPAD(NVL(MAX(LYOT_ID), 0) + 1, 10, '0')
+                  FROM T_DBRD_LYOT
+              ) /* Layout ID(레이아웃ID) */
+            , #{LYOT_NM}                           /* Layout name(레이아웃명) */
+            , #{LYOT_DESC}                         /* Layout description(레이아웃설명) */
+            , #{USE_YN}                            /* Use Y/N(사용여부) */
+            , #{GBL_USR_ID}                        /* Register ID(등록 ID) */
+            , FN_LOC_DTM(#{GBL_UTC_GAP})           /* Register date-time(등록 일시) */
+            , #{GBL_USR_ID}                        /* Last update ID(최종 변경 ID) */
+            , FN_LOC_DTM(#{GBL_UTC_GAP})           /* Last update date-time(최종 변경 일시) */
+              )
+    </update>
+    
+    <!-- DELETE_DBRD_LYOT : Delete dashboard layout Information(대시보드 레이아웃 정보 삭제) -->
+    <delete id="DELETE_DBRD_LYOT" parameterType="java.util.HashMap">
+        /* DBRD1020.DELETE_DBRD_LYOT : Delete dashboard layout Information(대시보드 레이아웃 정보 삭제) */
+        BEGIN
+        
+            DELETE FROM T_DBRD_LYOT /* Dashboard layout(대시보드 레이아웃) Table */
+             WHERE LYOT_ID = #{LYOT_ID}  /* Layout ID(레이아웃ID) */
+             ;
+             
+            DELETE FROM T_DBRD_LYOT_SET /* Dashboard layout set(대시보드 레이아웃 설정) Table */
+             WHERE LYOT_ID = #{LYOT_ID}  /* Layout ID(레이아웃ID) */
+             ;
+             
+            DELETE FROM T_DBRD_ATHT     /* Dashboard authority(대시보드 권한) Table */
+             WHERE LYOT_ID = #{LYOT_ID}  /* Layout ID(레이아웃ID) */
+             ;
+             
+        END;
+    </delete>
+</mapper>

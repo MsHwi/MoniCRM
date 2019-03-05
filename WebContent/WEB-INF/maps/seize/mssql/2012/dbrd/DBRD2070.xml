@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="DBRD2070">
+    <!-- Search Payload Total(Payload 총 조회) --> 
+    <select id="SELECT_PYLD_TTL" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+        /* DBRD2070.SELECT_PYLD_TTL : Search Payload Total(Payload 총 조회) */
+     SELECT ISNULL(
+           (SELECT CONVERT(VARCHAR, FORMAT(SUM((CASE WHEN T.JOB_ID IS NOT NULL THEN 1 ELSE 0 END) * F.APND_FILE_SZ), '#,#')) + ' k' AS PYLD_TTL   /* Attach File Size(첨부파일 크기) */
+              FROM T_MKT_FILE_TRMS_TGT T WITH(NOLOCK) 
+        
+              INNER JOIN T_MKT_FILE_TRMS_MGNT M WITH(NOLOCK) 
+                ON M.JOB_ID = T.JOB_ID
+        
+              INNER JOIN T_MKT_INFO MI WITH(NOLOCK) 
+                ON M.MKT_NO = MI.MKT_NO
+                
+              LEFT OUTER JOIN T_FILE_INFO F WITH(NOLOCK) 
+                ON M.FILE_ID = F.FILE_ID
+            
+             WHERE T.TRMS_PROC_END_DTM BETWEEN dbo.FN_LOC_DT(#{GBL_UTC_GAP}) + '000000' AND dbo.FN_LOC_DT(#{GBL_UTC_GAP}) + '235959'              
+               AND T.TRMS_PROC_ST_CD = 'C'
+               AND M.JOB_TGT_PROC_CD = 'FD' 
+               
+             GROUP BY F.APND_FILE_SZ)
+             , '0 k') AS PYLD_TTL
+    </select>
+    
+    <!-- Payload Detail(Payload 세부 조회) --> 
+    <select id="SELECT_PYLD_DTL" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+        /* DBRD2070.SELECT_PYLD_DTL : Search Payload Detail(Payload 세부 조회) */                
+            SELECT MI.MKT_NM                                                                 /* Marketing name(마케팅명) */
+                 , ISNULL(CONVERT(VARCHAR, FORMAT(COUNT(*) * F.APND_FILE_SZ, '#,#')), '0') + ' k' AS PYLD   /* Attach File Size(첨부파일 크기) */
+              FROM T_MKT_FILE_TRMS_TGT T WITH(NOLOCK) 
+        
+              INNER JOIN T_MKT_FILE_TRMS_MGNT M WITH(NOLOCK) 
+                ON M.JOB_ID = T.JOB_ID
+        
+              INNER JOIN T_MKT_INFO MI WITH(NOLOCK) 
+                ON M.MKT_NO = MI.MKT_NO
+                
+              LEFT JOIN T_FILE_INFO F WITH(NOLOCK) 
+                ON M.FILE_ID = F.FILE_ID
+            
+             WHERE T.TRMS_PROC_END_DTM BETWEEN dbo.FN_LOC_DT(#{GBL_UTC_GAP}) + '000000' AND dbo.FN_LOC_DT(#{GBL_UTC_GAP}) + '235959'               
+               AND T.TRMS_PROC_ST_CD = 'C'
+               AND M.JOB_TGT_PROC_CD = 'FD' 
+            
+             GROUP BY MI.MKT_NM
+                 , F.APND_FILE_SZ   
+    </select>    
+</mapper>

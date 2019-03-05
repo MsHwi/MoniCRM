@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Sat Apr 02 22:02:57 KST 2016-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="MRKT7015">
+        
+    <!-- Search Marketing file transfer target (마케팅 파일 전송 대상 처리 상태 조회) -->
+    <select id="SELECT_MKT_FILE_TRMS_TGT" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+        /* MRKT7015.SELECT_MKT_FILE_TRMS_TGT : Search Marketing file transfer target(마케팅 파일 전송 대상 처리 상태 조회) */
+		SELECT PROC_SRVR_NO
+<!-- 		     , SUM(CASE WHEN TRMS_PROC_ST_CD = 'N' THEN 1 ELSE 0 END) NOTREADY -->
+		     , SUM(CASE WHEN TRMS_PROC_ST_CD = 'W' THEN 1 ELSE 0 END) WAIT
+		     , SUM(CASE WHEN TRMS_PROC_ST_CD = 'P' THEN 1 ELSE 0 END) PROCESS
+		     , SUM(CASE WHEN TRMS_PROC_ST_CD = 'C' THEN 1 ELSE 0 END) COMPLETE
+		     , SUM(CASE WHEN TRMS_PROC_ST_CD = 'F' THEN 1 ELSE 0 END) FAIL
+		     , SUM(CASE WHEN ERR_CSE_YN = 'Y' THEN 1 ELSE 0 END) ERROR
+		  FROM T_MKT_FILE_TRMS_TGT WITH(NOLOCK)
+		 WHERE JOB_ID = #{JOB_ID}
+		   AND TRMS_PROC_ST_CD != 'N'
+		 GROUP BY PROC_SRVR_NO
+		 ORDER BY PROC_SRVR_NO
+    </select>
+    
+    <select id="SELECT_MKT_FILE_TRMS_CNT" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+        /* MRKT7015.SELECT_MKT_FILE_TRMS_CNT : Search Marketing file transfer count(마케팅 파일 전송 대상 처리 상태 건수) */
+        SELECT ISNULL(SUM(CASE WHEN T1.TRMS_PROC_ST_CD = 'N' THEN 1 ELSE 0 END), 0) NRDY_CNT
+             , ISNULL(SUM(CASE WHEN T1.TRMS_PROC_ST_CD != 'N' THEN 1 ELSE 0 END), 0) PROC_CNT
+             , COUNT(T1.TRMS_PROC_ST_CD) ALL_CNT
+             , ISNULL(MAX(T2.TRMS_PROC_STR_DTM), '') STR_DTM
+             , ISNULL(MAX(T2.TRMS_PROC_END_DTM), '') END_DTM
+          FROM T_MKT_FILE_TRMS_TGT T1 WITH(NOLOCK)
+         INNER JOIN T_MKT_FILE_TRMS_MGNT T2 WITH(NOLOCK)
+            ON T1.JOB_ID = T2.JOB_ID
+         WHERE T1.JOB_ID = #{JOB_ID}
+    </select>
+    
+</mapper>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="DBRD1021">
+    <!-- Search Dashboard Layout(대쉬보드 레이아웃 조회) --> 
+    <select id="SELECT_DBRD_LYOT" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+        /* DBRD1021.SELECT_DBRD_LYOT : Search Dashboard Layout(대쉬보드 레이아웃 조회) */		 
+			SELECT LYOT_ID               /* Layout ID(레이아웃ID) */
+			     , LYOT_NM               /* Layout name(레이아웃명) */
+			  FROM T_DBRD_LYOT
+			 WHERE USE_YN = 'Y'
+			 
+			 ORDER BY LYOT_ID, LYOT_NM
+    </select>
+    
+    <!-- Search Authority Dashboard Layout(권한 대쉬보드 레이아웃 조회) --> 
+    <select id="SELECT_AUTH_DBRD_LYOT" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+        /* DBRD1021.SELECT_AUTH_DBRD_LYOT : Search Authority Dashboard Layout(권한 대쉬보드 레이아웃 조회) */      
+			SELECT A.LYOT_ID             /* Layout ID(레이아웃ID) */
+			     , B.LYOT_NM             /* Layout name(레이아웃명) */
+			  FROM T_DBRD_ATHT A
+			  
+			 INNER JOIN T_DBRD_LYOT B
+			    ON A.LYOT_ID = B.LYOT_ID
+			    
+			 WHERE A.GRP_ATHT = #{USR_GRP_ATHT}
+			 
+			 ORDER BY A.LYOT_ID, B.LYOT_NM
+    </select>  
+    
+    <!-- Register Authority Dashboard Layout(권한 대쉬보드 레이아웃 등록) -->
+    <insert id="INSERT_AUTH_DBRD_LYOT" parameterType="java.util.HashMap">
+        /* DBRD1021.INSERT_AUTH_DBRD_LYOT : Register Authority Dashboard Layout(권한 대쉬보드 레이아웃 등록) */
+<!--         MERGE INTO T_DBRD_ATHT A -->
+<!--         USING DUAL -->
+<!--            ON (A.GRP_ATHT = #{GRP_ATHT} -->
+<!--           AND  A.LYOT_ID = #{LYOT_ID}) -->
+<!--         WHEN MATCHED THEN -->
+<!--         UPDATE  -->
+<!--            SET LST_UPD_DTM = '' -->
+<!--          WHERE 1=2  이미 있는 건이 들어오면 아무것도 할 필요 없음. -->
+<!--         WHEN NOT MATCHED THEN -->
+        INSERT INTO T_DBRD_ATHT
+        (
+            GRP_ATHT            /* Group permission(그룹 권한) */
+          , LYOT_ID             /* Layout ID(레이아웃ID) */
+          , REG_ID              /* Registration ID(등록 ID) */
+          , REG_DTM             /* Registration Date(등록 일시) */
+          , LST_UPD_ID          /* Last Update ID(최종 변경 ID) */
+          , LST_UPD_DTM         /* Last Update Date(최종 변경 일시) */
+        )
+        VALUES
+        (
+            #{GRP_ATHT}
+          , #{LYOT_ID}
+          , #{GBL_USR_ID}
+          , FN_LOC_DTM(#{GBL_UTC_GAP})
+          , #{GBL_USR_ID}
+          , FN_LOC_DTM(#{GBL_UTC_GAP})
+        )
+    </insert>    
+        
+    <!-- Delete Authority Dashboard Layout(권한 대쉬보드 레이아웃 삭제) -->    
+    <delete id="DELETE_DBRD_ATHT" parameterType="java.util.HashMap">
+        /* DBRD1021.DELETE_DBRD_ATHT : Delete Authority Dashboard Layout(권한 대쉬보드 레이아웃 삭제) */
+        DELETE
+          FROM T_DBRD_ATHT
+         WHERE GRP_ATHT = #{GRP_ATHT}
+    </delete>    
+</mapper>

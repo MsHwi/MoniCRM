@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Sat Apr 02 22:02:51 KST 2016-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="DBRD1040">
+    
+    <!-- SELECT_LYOT_LIST : Search dashboar layout list(대시보드 레이아웃 리스트 조회) -->
+    <select id="SELECT_LYOT_LIST" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+       /* DBRD1040.SELECT_LYOT_LIST : Search dashboar layout list(대시보드 레이아웃 리스트 조회) */
+       SELECT ATHT.LYOT_ID CODE     /* Layout ID(레이아웃ID) */
+            , LYOT.LYOT_NM TEXT     /* Layout name(레이아웃명) */
+         FROM T_DBRD_ATHT ATHT WITH(NOLOCK) /* Dashboard authority(대시보드 권한) Table */
+        INNER JOIN T_DBRD_LYOT LYOT WITH(NOLOCK) /* Dashboard layout(대시보드 레이아웃) Table */
+           ON ATHT.LYOT_ID = LYOT.LYOT_ID
+        WHERE ATHT.GRP_ATHT = #{GBL_GRP_ATHT}  /* 그룹 권한 */
+          AND LYOT.USE_YN = 'Y'
+        ORDER BY LYOT.LYOT_ID
+    </select>
+    
+    <resultMap id="LYOT_RESULT" type="java.util.HashMap">
+        <result property="LYOT_FORM" column="LYOT_FORM" jdbcType="CLOB" javaType="java.lang.String"/>
+    </resultMap>
+    
+    <!-- SELECT_LYOT_SET : Search Dashboard layout set information(대시보드 레이아웃 설정 정보 조회) -->
+    <select id="SELECT_LYOT_SET" parameterType="java.util.HashMap" resultMap="LYOT_RESULT">
+       /* DBRD1040.SELECT_LYOT_SET : Search Dashboard layout set information(대시보드 레이아웃 설정 정보 조회) */
+       SELECT LYOT_FORM    /* Layout Form(레이아웃양식) */
+         FROM T_DBRD_LYOT WITH(NOLOCK) /* Dashboard layout(대시보드 레이아웃) Table */
+        WHERE LYOT_ID = #{LYOT_ID}
+    </select>
+    
+    <!-- SELECT_WGT_PATH : Search widget path information(위젯 경로 정보 조회) -->
+    <select id="SELECT_WGT_PATH" parameterType="java.util.HashMap" resultMap="LYOT_RESULT">
+       /* DBRD1040.SELECT_WGT_PATH : Search widget path information(위젯 경로 정보 조회) */
+       SELECT WGT_PATH    /* Layout Form(레이아웃양식) */
+         FROM T_WGT WITH(NOLOCK) /* Widget(위젯정보) Table */
+        WHERE WGT_ID = #{WGT_ID}
+          AND USE_YN = 'Y'
+    </select>
+    
+    <!-- SELECT_USR_LYOT : Search user layout information(사용자 대시보드 레이아웃 정보 조회) -->
+    <select id="SELECT_USR_LYOT" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+        /* DBRD1040.SELECT_USR_LYOT : Search user layout information(사용자 대시보드 레이아웃 정보 조회) */
+        SELECT LYOT_ID /* Layout ID(레이아웃ID) */
+          FROM T_USR WITH(NOLOCK)    /* User master(사용자) Table */
+         WHERE USR_ID = #{GBL_USR_ID}
+    </select>
+    
+    <!-- UPDATE_USR_LYOT : Update user layout information(사용자 대시보드 레이아웃 정보 업데이트) -->
+    <update id="UPDATE_USR_LYOT" parameterType="java.util.HashMap">
+        /* DBRD1040.UPDATE_USR_LYOT : Update user layout information(사용자 대시보드 레이아웃 정보 업데이트) */
+        UPDATE T_USR  /* User master(사용자) Table */
+           SET LYOT_ID = #{LYOT_ID} /* Layout ID(레이아웃ID) */
+         WHERE USR_ID = #{GBL_USR_ID}
+    </update>
+    
+</mapper>

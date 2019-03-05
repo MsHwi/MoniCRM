@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Sat Apr 02 22:02:57 KST 2016-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="MRKT5010">
+        
+    <!-- Search Marketing Additional Item (마케팅 추가 항목 조회) -->
+    <select id="SELECT_MKT_ADD_COL" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+        /* MRKT5010.SELECT_MKT_ADD_COL : Search Marketing Additional Item(마케팅 추가 항목 조회) */
+		SELECT TMNL_TYP_CD                    /* Terminal type code(터미널 유형 코드) */
+		     , MKT_TYP_CD                     /* Marketing type code(마케팅 유형 코드) */
+		     , PHYS_NM                        /* Physical name(물리명) */
+		     , SCRN_DISP_NM                   /* Display name(화면표시명) */
+		     , BASE_VLU                       /* Default value(기본값) */
+		  FROM T_MKT_ADD_COL_MGNT WITH(NOLOCK)
+         WHERE TMNL_TYP_CD = #{TMNL_TYP_CD}        
+           AND MKT_TYP_CD = #{MKT_TYP_CD}      	  
+         		  
+	  ORDER BY PHYS_NM
+		     , SCRN_DISP_NM
+    </select>   
+    
+    <!-- Delete Marketing Additional Item (마케팅 추가 항목 삭제) -->
+    <delete id="DELETE_MKT_ADD_COL" parameterType="java.util.HashMap">
+        /* MRKT5010.DELETE_MKT_ADD_COL : Delete Marketing Additional Item (마케팅 추가 항목 삭제) */
+        DELETE
+          FROM T_MKT_ADD_COL_MGNT
+         WHERE TMNL_TYP_CD = #{TMNL_TYP_CD}        
+           AND MKT_TYP_CD = #{MKT_TYP_CD}    
+    </delete>        
+    
+    <!-- Save Marketing Additional Item (마케팅 추가 항목 등록) -->
+    <insert id="INSERT_MKT_ADD_COL" parameterType="java.util.HashMap">
+        /* MRKT5010.INSERT_MKT_ADD_COL : Save Marketing Additional Item (마케팅 추가 항목 등록) */
+           INSERT INTO T_MKT_ADD_COL_MGNT           
+            (
+                TMNL_TYP_CD                    /* Terminal type code(터미널 유형 코드) */
+              , MKT_TYP_CD                     /* Marketing type code(마케팅 유형 코드) */
+              , PHYS_NM                        /* Physical name(물리명) */
+              , SCRN_DISP_NM                   /* Display name(화면표시명) */
+              , BASE_VLU                       /* Default value(기본값) */
+		      , REG_ID                         /* Register ID(등록 ID) */
+		      , REG_DTM                        /* Register date-time(등록 일시) */
+		      , LST_UPD_ID                     /* Last update ID(최종 변경 ID) */
+		      , LST_UPD_DTM                    /* Last update date-time(최종 변경 일시) */
+            )
+            VALUES
+            (
+                #{TMNL_TYP_CD}
+              , #{MKT_TYP_CD}
+              , #{PHYS_NM}
+              , #{SCRN_DISP_NM}
+              , #{BASE_VLU}
+              , #{GBL_USR_ID}
+              , dbo.FN_LOC_DTM(#{GBL_UTC_GAP})
+              , #{GBL_USR_ID}
+              , dbo.FN_LOC_DTM(#{GBL_UTC_GAP})
+            )
+    </insert>
+</mapper>

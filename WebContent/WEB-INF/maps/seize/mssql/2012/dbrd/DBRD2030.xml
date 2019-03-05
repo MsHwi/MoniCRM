@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="DBRD2030">
+
+<!--     <resultMap type="hashmap" id="SELECT_MKT_FILE_SEND_RATE_RESULTSET"></resultMap> -->
+    <!-- Search Marketing File Sending Rate(마케팅 파일 전송 성공률) --> 
+<!--     <select id="SELECT_MKT_FILE_SEND_RATE" statementType="CALLABLE" parameterType="java.util.HashMap"> -->
+     <select id="SELECT_MKT_FILE_SEND_RATE" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+        /* DBRD2030.SELECT_MKT_FILE_SEND_RATE : Search Marketing File Sending Rate(마케팅 파일 전송 성공률) */
+        
+        BEGIN    
+        
+            DECLARE @V_TODAY VARCHAR(8) = ''
+            SELECT @V_TODAY = dbo.FN_LOC_DT(#{GBL_UTC_GAP});            
+            
+            IF #{SRCH_END_DT} >= @V_TODAY 
+
+            BEGIN
+                
+                SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+                SET NOCOUNT ON;  
+                        
+                WITH DATES_WANTED AS (
+                    SELECT CONVERT(DATE, #{SRCH_STR_DT}) AS DT
+                     UNION ALL
+                    SELECT DATEADD(DAY, 1, DT)
+                      FROM DATES_WANTED
+                     WHERE DT <![CDATA[ < ]]> DATEADD(DAY, -1, CONVERT(DATE, #{SRCH_END_DT}))                                        
+                )        
+                                        
+                SELECT SUBSTRING(@V_TODAY, 1, 4) + '-' + SUBSTRING(@V_TODAY, 5, 2) + '-' + SUBSTRING(@V_TODAY, 7, 2) AS DT  /* Date of Today */
+                     , ISNULL(SUM(CASE WHEN T.TRMS_PROC_ST_CD = 'C' THEN 1 ELSE 0 END)/
+                       (CASE WHEN COUNT(T.JOB_ID) = 0 THEN NULL ELSE COUNT(T.JOB_ID) END), 0) AS SCSS                       /* File success count(파일성공건수) */
+                     , ISNULL((COUNT(T.JOB_ID) - ISNULL(SUM(CASE WHEN T.TRMS_PROC_ST_CD = 'C' THEN 1 ELSE 0 END), 0))/
+                       (CASE WHEN COUNT(T.JOB_ID) = 0 THEN NULL ELSE COUNT(T.JOB_ID) END), 0) AS FAIL                       /* File total count(파일총건수) - File success count(파일성공건수) */
+		          FROM T_MKT_FILE_TRMS_TGT T WITH(NOLOCK) 
+		        
+		         INNER JOIN T_MKT_FILE_TRMS_MGNT M WITH(NOLOCK) 
+		            ON T.JOB_ID = M.JOB_ID
+		        
+		         WHERE T.TRMS_PROC_END_DTM BETWEEN @V_TODAY + '000000' AND @V_TODAY + '235959' 
+		           AND M.JOB_TGT_PROC_CD = 'FD'
+		     
+		         <if test="AREA_CD != null and AREA_CD != ''">         
+		           AND T.AREA_CD = #{AREA_CD}
+		         </if>  
+		         <if test="CITY_CD != null and CITY_CD != ''">
+		           AND T.CITY_CD = #{CITY_CD}
+		         </if>              
+		    
+		         UNION ALL
+		        
+                SELECT CONVERT(VARCHAR(10), DW.DT, 23) AS DT                                                                                                  /* Basic Date(기준일자) */
+                     , ISNULL(SUM(SM.FILE_SCSS_NCNT)/SUM(CASE WHEN SM.FILE_TOT_NCNT = 0 THEN NULL ELSE SM.FILE_TOT_NCNT END), 0) AS SCSS                      /* File success count(파일성공건수) */
+                     , ISNULL(SUM(SM.FILE_TOT_NCNT - SM.FILE_SCSS_NCNT)/SUM(CASE WHEN SM.FILE_TOT_NCNT = 0 THEN NULL ELSE SM.FILE_TOT_NCNT END), 0) AS FAIL   /* File total count(파일총건수) - File success count(파일성공건수) */
+		          FROM DATES_WANTED DW WITH(NOLOCK)   
+		    
+                  LEFT OUTER JOIN (
+                        SELECT BASC_DT
+                             , FILE_SCSS_NCNT
+                             , FILE_TOT_NCNT
+                          FROM T_STS_MKT WITH(NOLOCK) 
+                
+                         WHERE 1=1
+                     <if test="AREA_CD != null and AREA_CD != ''">         
+                         AND   AREA_CD = #{AREA_CD}
+                     </if>            
+                     <if test="CITY_CD != null and CITY_CD != ''">
+                         AND   CITY_CD = #{CITY_CD}
+                     </if>
+                  ) SM
+                  
+                    ON SM.BASC_DT = REPLACE(REPLACE(REPLACE(CONVERT(VARCHAR(8), DW.DT, 112),'-',''), ' ',''),':','') 
+                   		         
+		         GROUP BY DT    
+		    
+		         ORDER BY DT DESC
+		         OPTION (MAXRECURSION 365)
+		         ;
+		    
+            END
+                
+            ELSE
+            
+            BEGIN
+            
+                SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+                SET NOCOUNT ON;  
+                
+                WITH DATES_WANTED AS (
+                    SELECT CONVERT(DATE, #{SRCH_STR_DT}) AS DT
+                     UNION ALL
+                    SELECT DATEADD(DAY, 1, DT)
+                      FROM DATES_WANTED
+                     WHERE DT <![CDATA[ < ]]> CONVERT(DATE, #{SRCH_END_DT})    
+                )                       
+                
+                SELECT CONVERT(VARCHAR(10), DW.DT, 23) AS DT                                                                                                  /* Basic Date(기준일자) */
+                     , ISNULL(SUM(SM.FILE_SCSS_NCNT)/SUM(CASE WHEN SM.FILE_TOT_NCNT = 0 THEN NULL ELSE SM.FILE_TOT_NCNT END), 0) AS SCSS                      /* File success count(파일성공건수) */
+                     , ISNULL(SUM(SM.FILE_TOT_NCNT - SM.FILE_SCSS_NCNT)/SUM(CASE WHEN SM.FILE_TOT_NCNT = 0 THEN NULL ELSE SM.FILE_TOT_NCNT END), 0) AS FAIL   /* File total count(파일총건수) - File success count(파일성공건수) */
+                  FROM DATES_WANTED DW WITH(NOLOCK)    
+            
+                  LEFT OUTER JOIN (
+                        SELECT BASC_DT
+                             , FILE_SCSS_NCNT
+                             , FILE_TOT_NCNT
+                          FROM T_STS_MKT WITH(NOLOCK) 
+                
+                         WHERE 1=1
+                     <if test="AREA_CD != null and AREA_CD != ''">         
+                         AND   AREA_CD = #{AREA_CD}
+                     </if>            
+                     <if test="CITY_CD != null and CITY_CD != ''">
+                         AND   CITY_CD = #{CITY_CD}
+                     </if>
+                  ) SM
+                  
+                    ON SM.BASC_DT = REPLACE(REPLACE(REPLACE(CONVERT(VARCHAR(8), DW.DT, 112),'-',''), ' ',''),':','')                    
+                 
+                 GROUP BY DT    
+            
+                 ORDER BY DT DESC
+                 OPTION (MAXRECURSION 365)
+                 ;
+                 	
+            END
+
+         END                 	         
+		         
+    </select>
+
+    <!-- Search Marketing File Sending Rate(마케팅 파일 전송 성공률) --> 
+     <select id="SELECT_MKT_FILE_SEND_RATE_BACKUP" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+        /* DBRD2030.SELECT_MKT_FILE_SEND_RATE : Search Marketing File Sending Rate(마케팅 파일 전송 성공률) */
+	    SELECT #{SRCH_TODAY} AS DT                                                                         /* Date of Today */
+	         , NVL(SUM(CASE WHEN T.TRMS_PROC_ST_CD = 'C' THEN 1 ELSE 0 END),0) AS SCSS                     /* File success count(파일성공건수) */
+	         , COUNT(T.JOB_ID) - NVL(SUM(CASE WHEN T.TRMS_PROC_ST_CD = 'C' THEN 1 ELSE 0 END), 0) AS FAIL  /* File total count(파일총건수) - File success count(파일성공건수) */
+	      FROM T_MKT_FILE_TRMS_TGT T
+	    
+	     INNER JOIN T_MKT_FILE_TRMS_MGNT M
+	        ON T.JOB_ID = M.JOB_ID
+	    
+	     WHERE T.TRMS_PROC_END_DTM BETWEEN #{SRCH_TODAY} || '000000' AND #{SRCH_TODAY} || '235959' 
+	       AND M.JOB_TGT_PROC_CD = 'FD'
+	 
+	     <if test="AREA_CD != null and AREA_CD != ''">         
+	       AND T.AREA_CD = #{AREA_CD}
+	     </if>  
+	     <if test="CITY_CD != null and CITY_CD != ''">
+	       AND T.CITY_CD = #{CITY_CD}
+	     </if>              
+	
+	     UNION ALL
+	    
+	    SELECT BASC_DT AS DT                                               /* Basic Date(기준일자) */
+	         , NVL(SUM(FILE_SCSS_NCNT), 0) AS SCSS                         /* File success count(파일성공건수) */
+	         , NVL(SUM(FILE_TOT_NCNT - FILE_SCSS_NCNT), 0) AS FAIL         /* File total count(파일총건수) - File success count(파일성공건수) */
+	      FROM T_STS_MKT   
+	
+	     WHERE BASC_DT BETWEEN #{SRCH_STR_DT} AND #{SRCH_END_DT}
+	
+	     <if test="AREA_CD != null and AREA_CD != ''">         
+	       AND AREA_CD = #{AREA_CD}
+	     </if>  
+	     <if test="CITY_CD != null and CITY_CD != ''">
+	       AND CITY_CD = #{CITY_CD}
+	     </if>
+	     
+	     GROUP BY BASC_DT    
+	
+	     ORDER BY DT DESC
+    </select> 
+</mapper>

@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="DBRD2020">
+
+<!--     <resultMap type="hashmap" id="SELECT_CRM_STAT_RESULTSET"></resultMap> -->
+    <!-- Search CRM Customer count(CRM 등록/미등록 고객 건 조회) --> 
+<!--     <select id="SELECT_CRM_STAT" statementType="CALLABLE"  parameterType="java.util.HashMap"> -->
+        <select id="SELECT_CRM_STAT" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+        /* DBRD2020.SELECT_CRM_STAT : Search CRM Statistics(CRM 통계 조회) */                 
+        
+        
+        BEGIN    
+              
+            DECLARE @V_TODAY VARCHAR(8) = ''
+            DECLARE @V_SUNDAY VARCHAR(8) = ''
+            DECLARE @V_SATDAY VARCHAR(8) = ''
+         
+            SELECT @V_TODAY = dbo.FN_LOC_DT(#{GBL_UTC_GAP});
+            SELECT @V_SUNDAY = REPLACE(REPLACE(REPLACE(CONVERT(VARCHAR(8), DATEADD(WEEK, DATEDIFF(DAY, 0, CONVERT(DATE, dbo.FN_LOC_DT(#{GBL_UTC_GAP})))/7, -1), 112),'-',''), ' ',''),':','');
+            SELECT @V_SATDAY = REPLACE(REPLACE(REPLACE(CONVERT(VARCHAR(8), DATEADD(WEEK, DATEDIFF(DAY, 0, CONVERT(DATE, dbo.FN_LOC_DT(#{GBL_UTC_GAP})))/7, 5), 112),'-',''), ' ',''),':','');
+            
+            IF #{SRCH_END_DT} >= @V_TODAY 
+            
+            BEGIN
+            
+                SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;                
+                SET NOCOUNT ON;                                           
+                
+			    WITH DAYS_WANTED AS (
+                    SELECT UPPER(FORMAT(CONVERT(DATE, @V_SUNDAY), 'ddd', 'en-US')) AS WD_CD,
+                           CONVERT(DATE, @V_SUNDAY ) AS DT
+                    UNION ALL
+                    SELECT UPPER(FORMAT(DATEADD(DAY, 1, DT), 'ddd', 'en-US')) AS WD_CD, 
+                           DATEADD(DAY, 1, DT) AS DT
+                      FROM DAYS_WANTED
+                     WHERE DT <![CDATA[ < ]]> CONVERT(DATE, @V_SATDAY)			           
+			    )                
+                                                      
+                SELECT ISNULL(AVG(A.CRM_CUST_NCNT), 0) AS CRM_AVG                           /* Average of CRM customer count(CRM고객건수) */
+                     , ISNULL(AVG(B.CRM_CUST_NCNT), 0) AS CRM_THISWEEK                      /* CRM customer count(CRM고객건수) of this week */
+                     , DW.WD_CD AS WD_CD                                                    /* Weekday(요일) */
+                 FROM DAYS_WANTED DW WITH(NOLOCK) 
+                 
+                 LEFT OUTER JOIN                                                            /* monthly data */
+                    (SELECT CRM_CUST_NCNT                                                   /* CRM customer count(CRM고객건수) */
+                          , WD_CD                                                           /* Weekday(요일) */
+                          , CITY_CD                                                         /* City/District code(시 코드) */
+                          , AREA_CD                                                         /* Area code(지역 코드) */
+                          , BASC_DT AS DT                                                   /* Basic Date(기준일자) */
+                       FROM T_STS_MKT WITH(NOLOCK) 
+                      WHERE BASC_DT BETWEEN #{SRCH_STR_DT} AND #{SRCH_END_DT}  
+                     <if test="AREA_CD != null and AREA_CD != ''">         
+                        AND AREA_CD = #{AREA_CD}
+                     </if>            
+                     <if test="CITY_CD != null and CITY_CD != ''">
+                        AND CITY_CD = #{CITY_CD}
+                     </if>             
+                
+                      UNION ALL             /* to add today's history of monthly chart */
+                     SELECT ISNULL(SUM(CASE WHEN CRM_CUST_YN='Y' THEN 1 ELSE 0 END), 0) AS CRM_CUST_NCNT      
+                          , UPPER(FORMAT(CONVERT(DATE, REG_DT), 'ddd', 'en-US')) AS WD_CD  
+                          , CITY_CD
+                          , AREA_CD  
+                          , REG_DT AS DT
+                       FROM T_MKT_IF_HIST WITH(NOLOCK)      
+                      WHERE REG_DT = @V_TODAY
+                        AND TRSC_DV = '01'
+                     <if test="AREA_CD != null and AREA_CD != ''">         
+                        AND AREA_CD = #{AREA_CD}
+                     </if>            
+                     <if test="CITY_CD != null and CITY_CD != ''">
+                        AND CITY_CD = #{CITY_CD}
+                     </if>  
+                                             
+                   GROUP BY UPPER(FORMAT(CONVERT(DATE, REG_DT), 'ddd', 'en-US'))  
+                          , CITY_CD
+                          , AREA_CD
+                          , REG_DT ) A
+                          
+                   ON DW.WD_CD = A.WD_CD                          
+                
+                 LEFT OUTER JOIN                                        /* weekly data */               
+                    (SELECT CRM_CUST_NCNT                               /* CRM customer count(CRM고객건수) */
+                          , WD_CD                                       /* Weekday(요일) */
+                          , CITY_CD                                     /* City/District code(시 코드) */
+                          , AREA_CD                                     /* Area code(지역 코드) */ 
+                          , BASC_DT AS DT                               /* Basic Date(기준일자) */
+                       FROM T_STS_MKT WITH(NOLOCK) 
+                      WHERE BASC_DT BETWEEN @V_SUNDAY AND @V_SATDAY
+                     <if test="AREA_CD != null and AREA_CD != ''">         
+                        AND AREA_CD = #{AREA_CD}
+                     </if>            
+                     <if test="CITY_CD != null and CITY_CD != ''">
+                        AND CITY_CD = #{CITY_CD}
+                     </if>                       
+                
+                      UNION ALL             /* to add today's history of weekly chart */
+                     SELECT ISNULL(SUM(CASE WHEN CRM_CUST_YN='Y' THEN 1 ELSE 0 END), 0) AS CRM_CUST_NCNT      
+                          , UPPER(FORMAT(CONVERT(DATE, REG_DT), 'ddd', 'en-US')) AS WD_CD  
+                          , CITY_CD
+                          , AREA_CD  
+                          , REG_DT AS DT
+                       FROM T_MKT_IF_HIST WITH(NOLOCK)      
+                      WHERE REG_DT = @V_TODAY
+                        AND TRSC_DV = '01'
+                     <if test="AREA_CD != null and AREA_CD != ''">         
+                        AND AREA_CD = #{AREA_CD}
+                     </if>            
+                     <if test="CITY_CD != null and CITY_CD != ''">
+                        AND CITY_CD = #{CITY_CD}
+                     </if>                         
+                        
+                   GROUP BY UPPER(FORMAT(CONVERT(DATE, REG_DT), 'ddd', 'en-US'))
+                          , CITY_CD
+                          , AREA_CD
+                          , REG_DT ) B
+                
+                     ON A.WD_CD = B.WD_CD
+                    AND A.DT = B.DT
+<!--                     AND A.CITY_CD = B.CITY_CD -->
+<!--                     AND A.AREA_CD = B.AREA_CD -->
+                             
+               GROUP BY DW.WD_CD
+               ORDER BY (CASE DW.WD_CD 
+                              WHEN 'SUN' THEN 0 
+                              WHEN 'MON' THEN 1 
+                              WHEN 'TUE' THEN 2 
+                              WHEN 'WED' THEN 3 
+                              WHEN 'THU' THEN 4 
+                              WHEN 'FRI' THEN 5 
+                              WHEN 'SAT' THEN 6 
+                              ELSE 99 END) DESC
+               ;
+            
+            END               
+               
+            ELSE
+            
+            BEGIN
+            
+                SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;            
+                SET NOCOUNT ON;   
+                
+                WITH DAYS_WANTED AS (
+                    SELECT UPPER(FORMAT(CONVERT(DATE, @V_SUNDAY), 'ddd', 'en-US')) AS WD_CD,
+                           CONVERT(DATE, @V_SUNDAY ) AS DT
+                    UNION ALL
+                    SELECT UPPER(FORMAT(DATEADD(DAY, 1, DT), 'ddd', 'en-US')) AS WD_CD, 
+                           DATEADD(DAY, 1, DT) AS DT
+                      FROM DAYS_WANTED
+                     WHERE DT <![CDATA[ < ]]> CONVERT(DATE, @V_SATDAY)          
+                )                     
+                  
+                SELECT ISNULL(AVG(A.CRM_CUST_NCNT), 0) AS CRM_AVG                           /* Average of CRM customer count(CRM고객건수) */
+                     , ISNULL(AVG(B.CRM_CUST_NCNT), 0) AS CRM_THISWEEK                      /* CRM customer count(CRM고객건수) of this week */
+                     , DW.WD_CD AS WD_CD                                                    /* Weekday(요일) */
+                 FROM DAYS_WANTED DW WITH(NOLOCK) 
+                 
+                 LEFT OUTER JOIN  
+                    (SELECT CRM_CUST_NCNT                                                   /* CRM customer count(CRM고객건수) */
+                          , WD_CD                                                           /* Weekday(요일) */
+                          , CITY_CD                                                         /* City/District code(시 코드) */
+                          , AREA_CD                                                         /* Area code(지역 코드) */
+                          , BASC_DT AS DT                                                   /* Basic Date(기준일자) */
+                       FROM T_STS_MKT WITH(NOLOCK) 
+                      WHERE BASC_DT BETWEEN #{SRCH_STR_DT} AND #{SRCH_END_DT}         
+                     <if test="AREA_CD != null and AREA_CD != ''">         
+                        AND AREA_CD = #{AREA_CD}
+                     </if>            
+                     <if test="CITY_CD != null and CITY_CD != ''">
+                        AND CITY_CD = #{CITY_CD}
+                     </if>                             
+                      ) A
+                      
+                   ON DW.WD_CD = A.WD_CD 
+                
+                 LEFT OUTER JOIN                                        /* weekly data */               
+                    (SELECT CRM_CUST_NCNT                               /* CRM customer count(CRM고객건수) */
+                          , WD_CD                                       /* Weekday(요일) */
+                          , CITY_CD                                     /* City/District code(시 코드) */
+                          , AREA_CD                                     /* Area code(지역 코드) */ 
+                          , BASC_DT AS DT                               /* Basic Date(기준일자) */
+                       FROM T_STS_MKT WITH(NOLOCK) 
+                      WHERE BASC_DT BETWEEN @V_SUNDAY AND @V_SATDAY
+                     <if test="AREA_CD != null and AREA_CD != ''">         
+                        AND AREA_CD = #{AREA_CD}
+                     </if>            
+                     <if test="CITY_CD != null and CITY_CD != ''">
+                        AND CITY_CD = #{CITY_CD}
+                     </if>                       
+                
+                      UNION ALL             /* to add today's history of weekly chart */
+                     SELECT ISNULL(SUM(CASE WHEN CRM_CUST_YN='Y' THEN 1 ELSE 0 END), 0) AS CRM_CUST_NCNT      
+                          , UPPER(FORMAT(CONVERT(DATE, REG_DT), 'ddd', 'en-US')) AS WD_CD  
+                          , CITY_CD
+                          , AREA_CD  
+                          , REG_DT AS DT
+                       FROM T_MKT_IF_HIST WITH(NOLOCK)      
+                      WHERE REG_DT = @V_TODAY
+                        AND TRSC_DV = '01'
+                     <if test="AREA_CD != null and AREA_CD != ''">         
+                        AND AREA_CD = #{AREA_CD}
+                     </if>            
+                     <if test="CITY_CD != null and CITY_CD != ''">
+                        AND CITY_CD = #{CITY_CD}
+                     </if>                         
+                        
+                   GROUP BY UPPER(FORMAT(CONVERT(DATE, REG_DT), 'ddd', 'en-US'))
+                          , CITY_CD
+                          , AREA_CD
+                          , REG_DT ) B
+                
+                     ON A.WD_CD = B.WD_CD
+                    AND A.DT = B.DT
+<!--                     AND A.CITY_CD = B.CITY_CD -->
+<!--                     AND A.AREA_CD = B.AREA_CD -->
+            
+               GROUP BY DW.WD_CD
+               ORDER BY (CASE DW.WD_CD 
+                              WHEN 'SUN' THEN 0 
+                              WHEN 'MON' THEN 1 
+                              WHEN 'TUE' THEN 2 
+                              WHEN 'WED' THEN 3 
+                              WHEN 'THU' THEN 4 
+                              WHEN 'FRI' THEN 5 
+                              WHEN 'SAT' THEN 6 
+                              ELSE 99 END) DESC
+               ;
+               
+               
+            END     
+            
+         END
+                                                              
+    </select>
+    
+    
+    <!-- Search CRM Customer count(CRM 등록/미등록 고객 건 조회) --> 
+    <select id="SELECT_CRM_STAT_BACKUP" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+        /* DBRD2020.SELECT_CRM_STAT : Search CRM Statistics(CRM 통계 조회) */                                                       
+            SELECT NVL(AVG(A.CRM_CUST_NCNT), 0) AS CRM_AVG                              /* Average of CRM customer count(CRM고객건수) */
+                 , NVL(AVG(B.CRM_CUST_NCNT), 0) AS CRM_THISWEEK                         /* CRM customer count(CRM고객건수) of this week */
+                 , CASE WHEN A.WD_CD IS NULL THEN B.WD_CD ELSE A.WD_CD END AS WD_CD     /* Weekday(요일) */
+             FROM
+                (SELECT CRM_CUST_NCNT                                                   /* CRM customer count(CRM고객건수) */
+                      , WD_CD                                                           /* Weekday(요일) */
+                      , CITY_CD                                                         /* City/District code(시 코드) */
+                      , AREA_CD                                                         /* Area code(지역 코드) */
+                      , BASC_DT AS DT                                                   /* Basic Date(기준일자) */
+                   FROM T_STS_MKT 
+                  WHERE BASC_DT BETWEEN #{SRCH_STR_DT} AND #{SRCH_END_DT}               
+            
+                 UNION ALL             /* to add today's history of monthly chart */
+                 SELECT NVL(SUM(CASE WHEN CRM_CUST_YN='Y' THEN 1 ELSE 0 END), 0) AS CRM_CUST_NCNT      
+                      , TO_CHAR(TO_DATE(REG_DT,'YYYYMMDD'),'DY','NLS_DATE_LANGUAGE=ENGLISH') AS WD_CD  
+                      , CITY_CD
+                      , AREA_CD  
+                      , REG_DT AS DT
+                   FROM T_MKT_IF_HIST      
+                  WHERE REG_DT = #{SRCH_TODAY}
+                    AND TRSC_DV = '01'
+                    
+               GROUP BY TO_CHAR(TO_DATE(REG_DT,'YYYYMMDD'),'DY','NLS_DATE_LANGUAGE=ENGLISH')
+                      , CITY_CD
+                      , AREA_CD
+                      , REG_DT ) A
+            
+             FULL OUTER JOIN               
+                (SELECT CRM_CUST_NCNT                               /* CRM customer count(CRM고객건수) */
+                      , WD_CD                                       /* Weekday(요일) */
+                      , CITY_CD                                     /* City/District code(시 코드) */
+                      , AREA_CD                                     /* Area code(지역 코드) */ 
+                      , BASC_DT AS DT                               /* Basic Date(기준일자) */
+                   FROM T_STS_MKT 
+                  WHERE BASC_DT BETWEEN #{WEEK_STR_DT} AND #{WEEK_END_DT}
+            
+                UNION ALL             /* to add today's history of weekly chart */
+                 SELECT NVL(SUM(CASE WHEN CRM_CUST_YN='Y' THEN 1 ELSE 0 END), 0) AS CRM_CUST_NCNT      
+                      , TO_CHAR(TO_DATE(REG_DT,'YYYYMMDD'),'DY','NLS_DATE_LANGUAGE=ENGLISH') AS WD_CD  
+                      , CITY_CD
+                      , AREA_CD  
+                      , REG_DT AS DT
+                   FROM T_MKT_IF_HIST      
+                  WHERE REG_DT = #{WEEK_TODAY}
+                    AND TRSC_DV = '01'
+                    
+               GROUP BY TO_CHAR(TO_DATE(REG_DT,'YYYYMMDD'),'DY','NLS_DATE_LANGUAGE=ENGLISH')
+                      , CITY_CD
+                      , AREA_CD
+                      , REG_DT ) B
+            
+                 ON A.WD_CD = B.WD_CD
+                AND A.DT = B.DT
+                AND A.CITY_CD = B.CITY_CD
+                AND A.AREA_CD = B.AREA_CD
+            
+              WHERE 1=1
+            <if test="AREA_CD != null and AREA_CD != ''">         
+                AND (CASE WHEN A.AREA_CD IS NULL THEN B.AREA_CD ELSE A.AREA_CD END) = #{AREA_CD}
+            </if>            
+            <if test="CITY_CD != null and CITY_CD != ''">
+                AND (CASE WHEN A.CITY_CD IS NULL THEN B.CITY_CD ELSE A.CITY_CD END) = #{CITY_CD}
+            </if>               
+           GROUP BY CASE WHEN A.WD_CD IS NULL THEN B.WD_CD ELSE A.WD_CD END
+           ORDER BY DECODE(CASE WHEN A.WD_CD IS NULL THEN B.WD_CD ELSE A.WD_CD END, 'SUN', 0, 'MON', 1, 'TUE', 2, 'WED', 3, 'THU', 4, 'FRI', 5, 'SAT', 6, 99) DESC            
+    </select>
+</mapper>

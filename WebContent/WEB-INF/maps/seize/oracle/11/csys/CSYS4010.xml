@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="CSYS4010">   
+
+    <!-- Search Password Expiration Code(비밀번호 변경 주기 조회) -->
+    <select id="SELECT_PW_UPD_CYC_CD" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+        /* CSYS4010.SELECT_PW_UPD_CYC_CD : Search Password Expiration Code(비밀번호 변경 주기 조회) */
+        SELECT 30 AS CODE, '30 days' AS TEXT FROM DUAL UNION ALL
+        SELECT 60 AS CODE, '60 days' AS TEXT FROM DUAL UNION ALL
+        SELECT 90 AS CODE, '90 days' AS TEXT FROM DUAL
+    </select>
+ 
+     <!-- Search Max Failed Login Code(최대 비밀번호 오류 횟수 조회) -->
+    <select id="SELECT_PW_ERR_TCNT_CD" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+        /* CSYS4010.SELECT_PW_ERR_TCNT_CD : Search Max Failed Login Code(최대 비밀번호 오류 횟수 조회) */
+        SELECT 5 AS CODE, '5 times' AS TEXT FROM DUAL UNION ALL
+        SELECT 6 AS CODE, '6 times' AS TEXT FROM DUAL UNION ALL
+        SELECT 7 AS CODE, '7 times' AS TEXT FROM DUAL UNION ALL
+        SELECT 8 AS CODE, '8 times' AS TEXT FROM DUAL
+    </select>
+    
+    <!-- Delete Password Policy (비밀번호  정책 삭제) -->
+    <delete id="DELETE_PW_PLCY" parameterType="java.util.HashMap">
+        /* CSYS4010.DELETE_PW_PLCY : Delete Password Policy (비밀번호  정책 삭제) */
+        DELETE
+          FROM T_PW_PLCY_INFO   
+    </delete>       
+    
+    <!-- Insert Password Policy (비밀번호  정책 수정) -->
+    <insert id="INSERT_PW_PLCY" parameterType="java.util.HashMap">
+        /* CSYS4010.INSERT_PW_PLCY : Update Password Policy (비밀번호  정책 수정) */
+            INSERT INTO T_PW_PLCY_INFO
+            (
+                PW_UPD_CYC_CD                 /* Password Change Cycle(비밀번호 변경 주기) */
+              , PW_ERR_TCNT_CD                /* number of password errors(비밀번호오류횟수) */
+              , IP_CHCK_YN                    /* IP check Y/N(IP체크여부) */
+              , PW_MAX_LEN                    /* Password max length(비밀번호 최대 길이) */
+              , PW_CHCK_NUM                   /* password requirement(number) */
+              , PW_CHCK_ALPH                  /* password requirement(alphabet) */
+              , PW_CHCK_LRG_CHR               /* password requirement(a big letter) */
+              , PW_CHCK_SML_CHR               /* password requirement(a small letter) */
+              , PW_CHCK_SPE_CHR               /* password requirement(special character) */
+              , REG_ID                        /* Register ID(등록 ID) */
+              , REG_DTM                       /* Register date-time(등록 일시) */
+              , LST_UPD_ID                    /* Last Update ID(최종변경ID) */
+              , LST_UPD_DTM                   /* Last Update Date(최종변경일시) */
+            )
+            VALUES
+            (
+                #{PW_UPD_CYC_CD}
+              , #{PW_ERR_TCNT_CD}
+              , #{IP_CHCK_YN}
+              , NVL(REPLACE(#{PW_MAX_LEN}, ',', ''), 0)
+              , #{PW_CHCK_NUM}
+              , #{PW_CHCK_ALPH}
+              , #{PW_CHCK_LRG_CHR}
+              , #{PW_CHCK_SML_CHR}
+              , #{PW_CHCK_SPE_CHR}
+              , #{GBL_USR_ID}
+              , FN_LOC_DTM(#{GBL_UTC_GAP})
+              , #{GBL_USR_ID}
+              , FN_LOC_DTM(#{GBL_UTC_GAP})
+		    )
+            
+ 	</insert> 	
+ 	 
+     <!-- Search Password Policy(비밀번호 정책 조회) -->
+    <select id="SELECT_PW_PLCY" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+        /* CSYS4010.SELECT_PW_PLCY : Search Password Policy(비밀번호 정책 조회) */
+        SELECT  PW_UPD_CYC_CD                       /* Password Change Cycle(비밀번호 변경 주기) */
+              , PW_ERR_TCNT_CD                      /* number of password errors(비밀번호오류횟수) */
+              , IP_CHCK_YN                          /* IP check Y/N(IP체크여부) */
+              , NVL(PW_MAX_LEN, 0) AS PW_MAX_LEN    /* Password max length(비밀번호 최대 길이) */
+              , PW_CHCK_NUM                         /* password requirement(number) */
+              , PW_CHCK_ALPH                        /* password requirement(alphabet) */
+              , PW_CHCK_LRG_CHR                     /* password requirement(a big letter) */
+              , PW_CHCK_SML_CHR                     /* password requirement(a small letter) */
+              , PW_CHCK_SPE_CHR                     /* password requirement(special character) */
+           FROM T_PW_PLCY_INFO
+          WHERE ROWNUM = 1
+    </select>
+</mapper>

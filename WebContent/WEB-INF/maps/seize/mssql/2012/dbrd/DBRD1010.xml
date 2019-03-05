@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Sat Apr 02 22:02:51 KST 2016-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="DBRD1010">
+    
+    <!-- SELECT_WJT_LIST : Search Widget List(위젯 리스트 조회) -->
+    <select id="SELECT_WGT_LIST" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+       /* DBRD1010.SELECT_WGT_LIST : Search Widget List(위젯 리스트 조회) */   
+           SELECT WGT_ID     /* Widget ID(위젯ID) */
+                , WGT_DV     /* Widget division(위젯구분) */
+                , dbo.FN_SMLCD_NM('WGT_DV', WGT_DV, #{GBL_LANG_CD}, '') AS WGT_DV_NM  /* Widget division name(위젯구분 명) */
+                , WGT_NM     /* Widget name(위젯명) */
+                , WGT_PATH   /* Widget path(위젯경로) */
+                , WGT_DESC   /* Widget description(위젯설명) */
+                , dbo.FN_SMLCD_NM('USE_YN', USE_YN, #{GBL_LANG_CD}, '') AS USE_YN_NM /* Use Y/N name(사용여부 명) */
+                , USE_YN     /* Use Y/N(사용여부) */
+                , REG_ID     /* Register ID(등록 ID) */
+                , REG_DTM    /* Register date-time(등록 일시) */
+             FROM T_WGT WITH(NOLOCK)  /* Widget(위젯정보) Table */
+            WHERE 1=1
+            <if test="WGT_DV != null and WGT_DV.size() > 0">
+              AND WGT_DV IN (<foreach item="ITEM" collection="WGT_DV" separator=",">#{ITEM}</foreach>)
+            </if>
+            <if test="WGT_NM != null and WGT_NM != ''">
+              AND UPPER(WGT_NM) LIKE UPPER(#{WGT_NM}) + '%'
+            </if>
+            ORDER BY WGT_ID
+    </select>
+    
+    <!-- UPDATE_WGT_INFO : Save Widget Information(위젯 정보 저장) -->
+    <update id="UPDATE_WGT_INFO" parameterType="java.util.HashMap">
+        /* DBRD1010.UPDATE_WGT_INFO : Save Widget Information(위젯 정보 저장) */
+        MERGE INTO T_WGT  /* Widget(위젯정보) Table */
+        USING (SELECT 1 AS DUAL) AS X
+           ON (
+              WGT_ID = #{WGT_ID}  /* Widget ID(위젯ID) */
+              )
+         WHEN MATCHED THEN
+       UPDATE SET
+              WGT_DV             = #{WGT_DV}         /* Widget division(위젯구분) */
+            , WGT_NM             = #{WGT_NM}         /* Widget name(위젯명) */
+            , WGT_PATH           = #{WGT_PATH}       /* Widget path(위젯경로) */
+            , WGT_DESC           = #{WGT_DESC}       /* Widget description(위젯설명) */
+            , USE_YN             = #{USE_YN}         /* Use Y/N(사용여부) */
+            , LST_UPD_ID         = #{GBL_USR_ID}     /* Last update ID(최종 변경 ID) */
+            , LST_UPD_DTM        = dbo.FN_LOC_DTM(#{GBL_UTC_GAP})  /* Last update date-time(최종 변경 일시) */
+         WHEN NOT MATCHED THEN
+       INSERT (
+              WGT_ID             /* Widget ID(위젯ID) */
+            , WGT_DV             /* Widget division(위젯구분) */
+            , WGT_NM             /* Widget name(위젯명) */
+            , WGT_PATH           /* Widget path(위젯경로) */
+            , WGT_DESC           /* Widget description(위젯설명) */
+            , USE_YN             /* Use Y/N(사용여부) */
+            , REG_ID             /* Register ID(등록 ID) */
+            , REG_DTM            /* Register date-time(등록 일시) */
+            , LST_UPD_ID         /* Last update ID(최종 변경 ID) */
+            , LST_UPD_DTM        /* Last update date-time(최종 변경 일시) */
+              )
+       VALUES (
+              #{WGT_ID}         /* Widget ID(위젯ID) */
+            , #{WGT_DV}         /* Widget division(위젯구분) */
+            , #{WGT_NM}         /* Widget name(위젯명) */
+            , #{WGT_PATH}       /* Widget path(위젯경로) */
+            , #{WGT_DESC}       /* Widget description(위젯설명) */
+            , #{USE_YN}         /* Use Y/N(사용여부) */
+            , #{GBL_USR_ID}     /* Register ID(등록 ID) */
+            , dbo.FN_LOC_DTM(#{GBL_UTC_GAP})  /* Register date-time(등록 일시) */
+            , #{GBL_USR_ID}     /* Last update ID(최종 변경 ID) */
+            , dbo.FN_LOC_DTM(#{GBL_UTC_GAP})  /* Last update date-time(최종 변경 일시) */
+              )
+    ;
+    </update>
+    
+    <!-- DELETE_WGT_INFO : Delete Widget Information(위젯 정보 삭제) -->
+    <delete id="DELETE_WGT_INFO" parameterType="java.util.HashMap">
+        /* DBRD1010.DELETE_WGT_INFO : Delete Widget Information(위젯 정보 삭제) */
+        DELETE FROM T_WGT  /* Widget(위젯정보) Table */
+         WHERE WGT_ID = #{WGT_ID}
+    </delete>
+</mapper>

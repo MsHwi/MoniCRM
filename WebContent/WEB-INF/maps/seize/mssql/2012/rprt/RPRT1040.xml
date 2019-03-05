@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="RPRT1040">
+    <!-- Search ATM Amount Combo(ATM 갯수 콤보 조회) --> 
+    <select id="SELECT_ATM_AMNT" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+        /* RPRT1040.SELECT_ATM_AMNT : Search ATM Amount Combo(ATM 갯수 콤보 조회) */		 
+				SELECT 10 AS CODE, '10' AS TEXT 
+	  UNION ALL SELECT 30 AS CODE, '30' AS TEXT 
+	  UNION ALL SELECT 50 AS CODE, '50' AS TEXT 
+	  UNION ALL SELECT 100 AS CODE, '100' AS TEXT 
+    </select>
+ 
+</mapper>

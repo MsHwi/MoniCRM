@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Sat Apr 02 22:02:51 KST 2016-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="DBRD1030">
+    
+    <resultMap id="LYOT_RESULT" type="java.util.HashMap">
+        <result property="LYOT_FORM" column="LYOT_FORM" jdbcType="CLOB" javaType="java.lang.String"/>
+    </resultMap>
+    
+    <!-- SELECT_LYOT_SET : Search Dashboard layout set information(대시보드 레이아웃 설정 정보 조회) -->
+    <select id="SELECT_LYOT_SET" parameterType="java.util.HashMap" resultMap="LYOT_RESULT">
+       /* DBRD1030.SELECT_LYOT_SET : Search Dashboard layout set information(대시보드 레이아웃 설정 정보 조회) */
+       SELECT LYOT_FORM    /* Layout Form(레이아웃양식) */
+         FROM T_DBRD_LYOT /* Dashboard layout(대시보드 레이아웃) Table */
+        WHERE LYOT_ID = #{LYOT_ID}
+    </select>
+    
+    <!-- DBRD1030.SELECT_WGT_NM : Search Dashboard widget name(대시보드 위젯 이름 조회) -->
+    <select id="SELECT_WGT_NM" resultType="java.util.HashMap"  parameterType="java.util.HashMap">
+        /* DBRD1030.SELECT_WGT_NM : Search Dashboard widget name(대시보드 위젯 이름 조회) */
+        SELECT WGT_ID   /* Widget ID(위젯ID) */
+             , WGT_NM   /* Widget name(위젯명) */
+          FROM T_WGT    /* Widget(위젯정보) Table */
+         WHERE WGT_ID =#{WGT_ID}
+    </select>
+    
+    <!-- UPDATE_LYOT_INFO : Save Dashboard layout Information(대시보드 레이아웃 정보 저장) -->
+    <update id="UPDATE_LYOT_INFO" parameterType="java.util.HashMap">
+        /* DBRD1030.UPDATE_LYOT_INFO : Save Dashboard layout Information(대시보드 레이아웃 정보 저장) */
+        UPDATE T_DBRD_LYOT  /* Dashboard layout(대시보드 레이아웃) Table */
+           SET LYOT_FORM   = #{LYOT_FORM}                /* Layout Form(레이아웃양식) */
+             , LST_UPD_ID  = #{GBL_USR_ID}               /* Last update ID(최종 변경 ID) */
+             , LST_UPD_DTM = FN_LOC_DTM(#{GBL_UTC_GAP})  /* Last update date-time(최종 변경 일시) */
+         WHERE LYOT_ID = #{LYOT_ID}   /* Layout ID(레이아웃ID) */
+    </update>
+    
+    <!-- DELETE_LYOT_SET : Delete layout set information(레이아웃 설정 정보 삭제) -->
+    <delete id="DELETE_LYOT_SET" parameterType="java.util.HashMap">
+        /* DBRD1030.DELETE_LYOT_SET : Delete layout set information(레이아웃 설정 정보 삭제) */
+        DELETE FROM T_DBRD_LYOT_SET /* Dashboard layout set(대시보드 레이아웃 설정) Table */
+         WHERE LYOT_ID = #{LYOT_ID}  /* Layout ID(레이아웃ID) */
+    </delete>
+    
+    <!-- UPDATE_LYOT_SET : Save Dashboard layout set Information(대시보드 레이아웃 설정 정보 저장) -->
+    <update id="UPDATE_LYOT_SET" parameterType="java.util.HashMap">
+        /* DBRD1030.UPDATE_LYOT_SET : Save Dashboard layout set Information(대시보드 레이아웃 설정 정보 저장) */
+        INSERT INTO T_DBRD_LYOT_SET  /* Dashboard layout set(대시보드 레이아웃 설정) Table */
+               (
+               LYOT_ID            /* Layout ID(레이아웃ID) */
+             , SEQ                /* Sequence(순번) */
+             , WGT_ID             /* Widget ID(위젯ID) */
+             , REG_ID             /* Register ID(등록 ID) */
+             , REG_DTM            /* Register date-time(등록 일시) */
+             , LST_UPD_ID         /* Last update ID(최종 변경 ID) */
+             , LST_UPD_DTM        /* Last update date-time(최종 변경 일시) */
+               )
+        VALUES (
+               #{LYOT_ID}                           /* Layout ID(레이아웃ID) */
+             , (
+               SELECT COUNT(*) + 1
+                 FROM T_DBRD_LYOT_SET  /* Dashboard layout set(대시보드 레이아웃 설정) Table */
+                WHERE LYOT_ID = #{LYOT_ID}
+               )                                    /* Sequence(순번) */
+             , #{WGT_ID}                            /* Widget ID(위젯ID) */
+             , #{GBL_USR_ID}                        /* Register ID(등록 ID) */
+             , FN_LOC_DTM(#{GBL_UTC_GAP})           /* Register date-time(등록 일시) */
+             , #{GBL_USR_ID}                        /* Last update ID(최종 변경 ID) */
+             , FN_LOC_DTM(#{GBL_UTC_GAP})           /* Last update date-time(최종 변경 일시) */
+               )
+    </update>
+    
+</mapper>
